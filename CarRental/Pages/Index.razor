@@ -4,7 +4,7 @@
 @using CarRental.Business.Classes
 @using CarRental.Common.Enums
 @using CarRental.Common.Interfaces
-@inject BookingProcessor bp
+@*@inject BookingProcessor bp*@
 @inject HttpClient Http
 
 <PageTitle>Car Rental</PageTitle>
@@ -122,9 +122,9 @@
     }
     
 </div>
-
+<p>@bp.DebugSeed()</p>
 @code {
-    //BookingProcessor bp = new(new CollectionData());
+    BookingProcessor bp = new(new CollectionData());
     private VehicleData[]? vehicleData;
     private BookingData[]? bookingData;
     private CustomerData[]? customerData;

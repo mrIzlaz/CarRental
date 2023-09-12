@@ -7,21 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Seed-Data\bookings.json" />
-    <None Remove="Seed-Data\customers.json" />
-    <None Remove="Seed-Data\vehicles.json" />
+    <None Remove="Resources\bookings.json" />
+    <None Remove="Resources\customers.json" />
+    <None Remove="Resources\vehicles.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Seed-Data\bookings.json">
+    <Content Include="Resources\bookings.json">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="Seed-Data\customers.json">
+    <Content Include="Resources\customers.json">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="Seed-Data\vehicles.json">
+    <Content Include="Resources\vehicles.json">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

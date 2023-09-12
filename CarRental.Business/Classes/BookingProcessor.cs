@@ -11,9 +11,10 @@ public class BookingProcessor
 
     public BookingProcessor(IData db) => _db = db;
 
-    public void DebugSeed()
+    public int DebugSeed()
     {
         _db.DebugCall();
+        return -1;
     }
     public IEnumerable<Customer> GetCustomers()
     {

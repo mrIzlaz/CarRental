@@ -6,6 +6,7 @@ using CarRental.Data.Interfaces;
 using System.Collections.Generic;
 using System.Text.Json;
 
+
 public class CollectionData : IData
 {
     readonly List<IPerson> _persons = new List<IPerson>();
@@ -41,13 +42,27 @@ public class CollectionData : IData
     }
     void SeedData()
     {
-        string text = File.ReadAllText(@".Seed-Data\bookings.json");
-        vehicleData = JsonSerializer.Deserialize<VehicleData[]>(text);
-        text = File.ReadAllText(@".Seed-Data\vehicles.json");
-        bookingData = JsonSerializer.Deserialize<BookingData[]>(text);
-        text = File.ReadAllText(@".Seed-Data\customers.json");
-        customerData = JsonSerializer.Deserialize<CustomerData[]>(text);
+        //Try sending in the data from the Frontend via HTTP Client Async call on Initialize?
+        string text = string.Empty;
+        using (StreamReader r = new StreamReader(@".\Resources\customers.json"))
+        {
+            try
+            {
+                string json = r.ReadToEnd();
+                bookingData = JsonSerializer.Deserialize<BookingData[]>(json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
+        text = File.ReadAllText(@".\Seed-Data\bookings.json"); //@".Seed-Data/bookings.json"
+        bookingData = JsonSerializer.Deserialize<BookingData[]>(text);
+        text = File.ReadAllText(@".Seed-Data/vehicles.json");
+        vehicleData = JsonSerializer.Deserialize<VehicleData[]>(text);
+        text = File.ReadAllText(@".Seed-Data/customers.json");
+        customerData = JsonSerializer.Deserialize<CustomerData[]>(text);
     }
 
     public class VehicleData
