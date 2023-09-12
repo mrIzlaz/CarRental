@@ -1,0 +1,26 @@
+﻿[
+  {
+    "SocialSecurityNumber": 23123,
+    "Surname": "Andersson",
+    "FirstName": "Anders",
+    "RegistryDate": "2020-08-18"
+  },
+  {
+    "SocialSecurityNumber": 18123,
+    "Surname": "Andersson",
+    "FirstName": "Anka",
+    "RegistryDate": "2020-08-18"
+  },
+  {
+    "SocialSecurityNumber": 22123,
+    "Surname": "Karlsson",
+    "FirstName": "Anna",
+    "RegistryDate": "2020-08-18"
+  },
+  {
+    "SocialSecurityNumber": 18123,
+    "Surname": "Persson",
+    "FirstName": "Per",
+    "RegistryDate": "2019-08-18"
+  }
+]

@@ -1,0 +1,47 @@
+﻿[
+  {
+    "RegNum": "ABC 123",
+    "Make": "Volvo",
+    "Odometer": 222,
+    "CostKilometer": 1.2,
+    "VehicleType": 0,
+    "CostDay": 200,
+    "vehicleStatus": 1
+  },
+  {
+    "RegNum": "ACC 223",
+    "Make": "Jeep",
+    "Odometer": 21011,
+    "CostKilometer": 1.7,
+    "VehicleType": 2,
+    "CostDay": 600,
+    "vehicleStatus": 1
+  },
+  {
+    "RegNum": "DAC 243",
+    "Make": "Toyota",
+    "Odometer": 44232,
+    "CostKilometer": 1.5,
+    "VehicleType": 1,
+    "CostDay": 100,
+    "vehicleStatus": 2
+  },
+  {
+    "RegNum": "AAC 587",
+    "Make": "Rivian",
+    "Odometer": 14524,
+    "CostKilometer": 0.5,
+    "VehicleType": 1,
+    "CostDay": 300,
+    "vehicleStatus": 2
+  },
+  {
+    "RegNum": "MLB 318",
+    "Make": "KIA",
+    "Odometer": 44232,
+    "CostKilometer": 0.55,
+    "VehicleType": 0,
+    "CostDay": 400,
+    "vehicleStatus": 1
+  }
+]

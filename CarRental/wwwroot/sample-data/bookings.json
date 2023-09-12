@@ -1,0 +1,42 @@
+﻿[
+  {
+    "RegNum": "ABC 123",
+    "Customer": "Anders Andersson (23123)",
+    "OdometerStartKm": 222,
+    "OdometerReturnKm": 224,
+    "StartDate": "2020-08-18",
+    "ReturnDate": "2020-08-18",
+    "TotalCost": 0,
+    "VehicleStatus": 1
+  },
+  {
+    "RegNum": "MLB 318",
+    "Customer": "Anka Andersson (18123)",
+    "OdometerStartKm": 44232,
+    "OdometerReturnKm": 44632,
+    "StartDate": "2020-08-16",
+    "ReturnDate": "2020-08-22",
+    "TotalCost": 584,
+    "VehicleStatus": 1
+  },
+  {
+    "RegNum": "AAC 587",
+    "Customer": "Anna Karlsson (22123)",
+    "OdometerStartKm": 14224,
+    "OdometerReturnKm": 14524,
+    "StartDate": "2020-08-18",
+    "ReturnDate": "2020-08-20",
+    "TotalCost": 401,
+    "VehicleStatus": 2
+  },
+  {
+    "RegNum": "DAC 243",
+    "Customer": "Per Persson (18123)",
+    "OdometerStartKm": 44232,
+    "OdometerReturnKm": 44632,
+    "StartDate": "2020-08-16",
+    "ReturnDate": "2020-08-22",
+    "TotalCost": 584,
+    "VehicleStatus": 2
+  }
+]
