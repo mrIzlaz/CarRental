@@ -71,7 +71,7 @@ public sealed class DataProducer
             }
             else { fails++; }
         }
-        while (fails > 0 || trials > 0)
+        while (fails > 0 && trials > 0)
         {
             trials--;
             var plate = GetSingleLicencePlate();

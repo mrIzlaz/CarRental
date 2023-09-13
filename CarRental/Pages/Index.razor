@@ -210,7 +210,7 @@
     string debugMessage = "";
 
     private List<Customer> customers;
-    private List<Vehicle> vehicles;
+    private List<IVehicle> vehicles;
 
     private VehicleData[]? vehicleData;
     private BookingData[]? bookingData;
@@ -231,7 +231,7 @@
         {
             bp = new BookingProcessor(new CollectionData());
             customers = (List<Customer>)bp.GetCustomers();
-            vehicles = (List<Vehicle>)bp.GetVehicles();
+            vehicles = (List<IVehicle>)bp.GetVehicles();
             debugMessage = $"List Size {customers?.Count()}, {customers?.FirstOrDefault()?.FirstName}";
         }
         catch (Exception e)
