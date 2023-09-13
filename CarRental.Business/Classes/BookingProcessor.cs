@@ -11,19 +11,15 @@ public class BookingProcessor
 
     public BookingProcessor(IData db) => _db = db;
 
-    public int DebugSeed()
-    {
-        _db.DebugCall();
-        return -1;
-    }
     public IEnumerable<Customer> GetCustomers()
     {
-        throw new NotImplementedException();
+        var list = _db.GetPersons().Where(x => x is Customer).Cast<Customer>().ToList();
+        return list.GetRange(0, list.Count);
     }
-
     public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = default)
     {
-        throw new NotImplementedException();
+        var list = _db.GetVehicles().ToList();
+        return list.GetRange(0, list.Count);
     }
 
     public IEnumerable<IBooking> GetBookings()

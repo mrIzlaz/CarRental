@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using CarRental.Common.Classes;
 @using CarRental.Data.Interfaces
 @using CarRental.Data.Classes
 @using CarRental.Business.Classes
@@ -10,89 +11,170 @@
 <PageTitle>Car Rental</PageTitle>
 
 <h1>Car Rental</h1>
+<div>
+    <input class="form-check-input" type="checkbox" @bind="@showDummyList" value="" id="flexCheckDefault">
+    <label class="form-check-label px-2" for="flexCheckDefault">
+        Show placeholder data
+    </label>
+
+</div>
+@if (showDummyList)
+{
+    <div>
+        <h3>Vehicles</h3>
+        @if (vehicleData == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table table-striped table-hover w-80">
+                <thead>
+                    <tr class="align-items-baseline">
+                        <th>RegNo.</th>
+                        <th>Make</th>
+                        <th>Odometer</th>
+                        <th>Cost Km</th>
+                        <th>Vehicle Type</th>
+                        <th>$ Day</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var vehicleInfo in vehicleData)
+                    {
+                        <tr>
+                            <td><strong>@vehicleInfo.RegNum</strong></td>
+                            <td>@vehicleInfo.Make</td>
+                            <td>@vehicleInfo.Odometer</td>
+                            <td>@vehicleInfo.CostKilometer $/km</td>
+                            <td>@vehicleInfo.vehicleType.ToString()</td>
+                            <td>@vehicleInfo.CostDay $/d</td>
+                            <td class="align-items-center"><span class="badge rounded-pill @(IsBooked(vehicleInfo.vehicleStatus) ? "text-bg-light" : "text-bg-success") ">@vehicleInfo.vehicleStatus.ToString()</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        }
+    </div>
+
+    <div>
+        <h3>Bookings</h3>
+        @if (bookingData == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table table-striped table-hover w-80">
+                <thead>
+                    <tr class="align-items-baseline">
+                        <th>RegNo.</th>
+                        <th>Customer</th>
+                        <th>Start</th>
+                        <th>Return</th>
+                        <th>Rent Date</th>
+                        <th>Return Date</th>
+                        <th>Total Cost $</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var bookingInfo in bookingData)
+                    {
+                        <tr>
+                            <td><strong>@bookingInfo.RegNum</strong></td>
+                            <td>@bookingInfo.Customer</td>
+                            <td>@bookingInfo.OdometerStartKm</td>
+                            <td> @(IsBooked(bookingInfo.vehicleStatus) ? "" : bookingInfo.OdometerReturnKm) </td>
+                            <td>@bookingInfo.StartDate.ToShortDateString()</td>
+                            <td> @(IsBooked(bookingInfo.vehicleStatus) ? "" : bookingInfo.ReturnDate.ToShortDateString())</td>
+                            <td>@bookingInfo.TotalCost $</td>
+                            <td class="align-items-center"><span class="badge @(IsBooked(bookingInfo.vehicleStatus) ? "text-bg-danger" : "text-bg-success") ">@(IsBooked(bookingInfo.vehicleStatus) ? "Open" : "Closed")</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        }
+    </div>
+    <div>
+        <h3>Customers</h3>
+        @if (customerData == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table table-striped table-hover w-50">
+                <thead>
+                    <tr class="align-items-baseline">
+                        <th>SSN</th>
+                        <th>Surname</th>
+                        <th>First Name</th>
+                        <th>Registry Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var customerInfo in customerData)
+                    {
+                        <tr>
+                            <td><strong>@customerInfo.SocialSecurityNumber</strong></td>
+                            <td>@customerInfo.Surname</td>
+                            <td>@customerInfo.FirstName</td>
+                            <td>@customerInfo.RegistryDate.ToShortDateString()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+    </div>
+}
 
 <div>
-    <h3>Vehicles</h3>
-    @if (vehicleData == null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else
-    {
-        <table class="table table-striped table-hover w-80">
-            <thead>
-                <tr class="align-items-baseline">
-                    <th>RegNo.</th>
-                    <th>Make</th>
-                    <th>Odometer</th>
-                    <th>Cost Km</th>
-                    <th>Vehicle Type</th>
-                    <th>$ Day</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var vehicleInfo in vehicleData)
-                {
-                    <tr>
-                        <td><strong>@vehicleInfo.RegNum</strong></td>
-                        <td>@vehicleInfo.Make</td>
-                        <td>@vehicleInfo.Odometer</td>
-                        <td>@vehicleInfo.CostKilometer $/km</td>
-                        <td>@vehicleInfo.vehicleType.ToString()</td>
-                        <td>@vehicleInfo.CostDay $/d</td>
-                        <td class="align-items-center"><span class="badge rounded-pill @(IsBooked(vehicleInfo.vehicleStatus) ? "text-bg-light" : "text-bg-success") ">@vehicleInfo.vehicleStatus.ToString()</span></td>
+    <div>
+        <h3>Vehicles</h3>
+        @if (bp == null || vehicles == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table table-striped table-hover w-80">
+                <thead>
+                    <tr class="align-items-baseline">
+                        <th>RegNo.</th>
+                        <th>Make</th>
+                        <th>Odometer</th>
+                        <th>Cost Km</th>
+                        <th>Vehicle Type</th>
+                        <th>$ Day</th>
+                        <th>Status</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-        <br />
-    }
-</div>
-
-<div>
-    <h3>Bookings</h3>
-    @if (bookingData == null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else
-    {
-        <table class="table table-striped table-hover w-80">
-            <thead>
-                <tr class="align-items-baseline">
-                    <th>RegNo.</th>
-                    <th>Customer</th>
-                    <th>Start</th>
-                    <th>Return</th>
-                    <th>Rent Date</th>
-                    <th>Return Date</th>
-                    <th>Total Cost $</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var bookingInfo in bookingData)
-                {
-                    <tr>
-                        <td><strong>@bookingInfo.RegNum</strong></td>
-                        <td>@bookingInfo.Customer</td>
-                        <td>@bookingInfo.OdometerStartKm</td>
-                        <td> @(IsBooked(bookingInfo.vehicleStatus) ? "" : bookingInfo.OdometerReturnKm) </td>
-                        <td>@bookingInfo.StartDate.ToShortDateString()</td>
-                        <td> @(IsBooked(bookingInfo.vehicleStatus) ? "" : bookingInfo.ReturnDate.ToShortDateString())</td>
-                        <td>@bookingInfo.TotalCost $</td>
-                        <td class="align-items-center"><span class="badge @(IsBooked(bookingInfo.vehicleStatus) ? "text-bg-danger" : "text-bg-success") ">@(IsBooked(bookingInfo.vehicleStatus) ? "Open" : "Closed")</span></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        <br />
-    }
-</div>
-<div>
+                </thead>
+                <tbody>
+                    @foreach (var vehicleInfo in vehicles)
+                    {
+                        <tr>
+                            <td><strong>@vehicleInfo.GetLicencePlate()</strong></td>
+                            <td>@vehicleInfo.GetManufacturer()</td>
+                            <td>@vehicleInfo.GetOdometer()</td>
+                            <td>@vehicleInfo.GetKmCost() $/km</td>
+                            <td>@vehicleInfo.GetVehicleType().ToString()</td>
+                            <td>@vehicleInfo.GetDayCost() $/d</td>
+                            <td class="align-items-center"><span class="badge rounded-pill @(IsBooked(vehicleInfo.GetBookingStatus()) ? "text-bg-light" : "text-bg-success") ">@vehicleInfo.GetBookingStatus().ToString()</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        }
+    </div>
     <h3>Customers</h3>
-    @if (customerData == null)
+    Debug: @debugMessage
+    @if (bp == null || customers == null)
     {
         <p><em>Loading...</em></p>
     }
@@ -102,38 +184,60 @@
             <thead>
                 <tr class="align-items-baseline">
                     <th>SSN</th>
-                    <th>Surname</th>
+                    <th>Last Name</th>
                     <th>First Name</th>
                     <th>Registry Date</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var customerInfo in customerData)
+                @foreach (var customerInfo in customers)
                 {
                     <tr>
-                        <td><strong>@customerInfo.SocialSecurityNumber</strong></td>
-                        <td>@customerInfo.Surname</td>
-                        <td>@customerInfo.FirstName</td>
+                        <td><strong>@customerInfo.GetSecurityFormated(true)</strong></td>
+                        <td>@customerInfo.GetLastname()</td>
+                        <td>@customerInfo.GetFirstname()</td>
                         <td>@customerInfo.RegistryDate.ToShortDateString()</td>
                     </tr>
                 }
             </tbody>
         </table>
     }
-    
+
 </div>
-<p>@bp.DebugSeed()</p>
+
 @code {
-    BookingProcessor bp = new(new CollectionData());
+    bool showDummyList = false;
+    string debugMessage = "";
+
+    private List<Customer> customers;
+    private List<Vehicle> vehicles;
+
     private VehicleData[]? vehicleData;
     private BookingData[]? bookingData;
     private CustomerData[]? customerData;
-
+    BookingProcessor? bp;
     protected override async Task OnInitializedAsync()
     {
+
         vehicleData = await Http.GetFromJsonAsync<VehicleData[]>("sample-data/vehicles.json");
         bookingData = await Http.GetFromJsonAsync<BookingData[]>("sample-data/bookings.json");
         customerData = await Http.GetFromJsonAsync<CustomerData[]>("sample-data/customers.json");
+        Setup();
+    }
+
+    public void Setup()
+    {
+        try
+        {
+            bp = new BookingProcessor(new CollectionData());
+            customers = (List<Customer>)bp.GetCustomers();
+            vehicles = (List<Vehicle>)bp.GetVehicles();
+            debugMessage = $"List Size {customers?.Count()}, {customers?.FirstOrDefault()?.FirstName}";
+        }
+        catch (Exception e)
+        {
+            debugMessage = e.Message;
+        }
     }
 
     public class VehicleData

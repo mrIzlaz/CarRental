@@ -4,11 +4,11 @@ using CarRental.Common.Enums;
 using CarRental.Common.Interfaces;
 using CarRental.Data.Interfaces;
 using System.Collections.Generic;
-using System.Text.Json;
 
 
 public class CollectionData : IData
 {
+    DataProducer producer = new DataProducer();
     readonly List<IPerson> _persons = new List<IPerson>();
     readonly List<IVehicle> _vehicles = new List<IVehicle>();
     readonly List<IBooking> _bookings = new List<IBooking>();
@@ -17,8 +17,6 @@ public class CollectionData : IData
 
     public IEnumerable<IBooking> GetBookings() => _bookings;
     public IEnumerable<IPerson> GetPersons() => _persons;
-
-
     public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = 0)
     {
         return _vehicles;
@@ -32,67 +30,23 @@ public class CollectionData : IData
     */
     #endregion
 
-    private VehicleData[]? vehicleData;
-    private BookingData[]? bookingData;
-    private CustomerData[]? customerData;
-
-    public void DebugCall()
-    {
-        SeedData();
-    }
     void SeedData()
     {
-        //Try sending in the data from the Frontend via HTTP Client Async call on Initialize?
-        string text = string.Empty;
-        using (StreamReader r = new StreamReader(@".\Resources\customers.json"))
+        try
         {
-            try
-            {
-                string json = r.ReadToEnd();
-                bookingData = JsonSerializer.Deserialize<BookingData[]>(json);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            var perList = producer.GenerateIPersonList(4);
+            _persons.AddRange(perList);
+
+            var vehlist = producer.GenerateIVehicleList();
+            _vehicles.AddRange(vehlist);
+        }
+        catch
+        {
+            throw new ArgumentException("Seed Data error!");
         }
 
-        text = File.ReadAllText(@".\Seed-Data\bookings.json"); //@".Seed-Data/bookings.json"
-        bookingData = JsonSerializer.Deserialize<BookingData[]>(text);
-        text = File.ReadAllText(@".Seed-Data/vehicles.json");
-        vehicleData = JsonSerializer.Deserialize<VehicleData[]>(text);
-        text = File.ReadAllText(@".Seed-Data/customers.json");
-        customerData = JsonSerializer.Deserialize<CustomerData[]>(text);
     }
 
-    public class VehicleData
-    {
-        public required string RegNum { get; set; }
-        public required string Make { get; set; }
-        public int Odometer { get; set; }
-        public double CostKilometer { get; set; }
-        public VehicleTypes vehicleType { get; set; }
-        public double CostDay { get; set; }
-        public VehicleStatus vehicleStatus { get; set; }
 
-    }
-    public class BookingData
-    {
-        public required string RegNum { get; set; }
-        public required string Customer { get; set; }
-        public int OdometerStartKm { get; set; }
-        public int OdometerReturnKm { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime ReturnDate { get; set; }
-        public double TotalCost { get; set; }
-        public VehicleStatus vehicleStatus { get; set; }
 
-    }
-    public class CustomerData
-    {
-        public int SocialSecurityNumber { get; set; }
-        public required string Surname { get; set; }
-        public required string FirstName { get; set; }
-        public DateTime RegistryDate { get; set; }
-    }
 }

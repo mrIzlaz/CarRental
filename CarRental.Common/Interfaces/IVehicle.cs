@@ -9,6 +9,6 @@ public interface IVehicle
     public VehicleTypes GetVehicleType();
     public int GetOdometer();
     public int GetDayCost();
-    public int GetKmCost();
+    public double GetKmCost();
     public VehicleStatus GetBookingStatus();
 }
