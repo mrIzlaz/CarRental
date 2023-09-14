@@ -39,14 +39,17 @@ public class CollectionData : IData
 
             var vehlist = producer.GenerateIVehicleList();
             _vehicles.AddRange(vehlist);
+
+            //var booklist = producer.GenerateIBookingsList();
         }
-        catch
+        catch (Exception ex)
         {
-            throw new ArgumentException("Seed Data error!");
+            string mes = ex.Message;
         }
+
+
+
 
     }
-
-
 
 }

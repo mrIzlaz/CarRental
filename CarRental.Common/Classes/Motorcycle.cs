@@ -13,6 +13,8 @@ public class Motorcycle : Vehicle
         Description = description;
         this.dayCost = dayCost;
         this.kmCost = kmCost;
+        VehicleStatus = VehicleStatus.Available;
+
     }
     public override VehicleTypes GetVehicleType() => VehicleTypes;        
 

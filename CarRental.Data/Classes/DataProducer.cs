@@ -10,15 +10,29 @@ public sealed class DataProducer
 {
     private int customerId = 0;
     private int carID = 0;
-    List<string> modelData = new List<string>();
     readonly char[] charData = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'X', 'Y', 'Z' };
     Dictionary<string, IVehicle> CarLib = new Dictionary<string, IVehicle>();
-
+    List<VehicleManufacturer> motoMakers = new List<VehicleManufacturer>() { VehicleManufacturer.Toyota, VehicleManufacturer.BMW, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
     public DataProducer()
     {
 
 
 
+    }
+
+    public List<IBooking> GenerateIBookingsList(List<Customer> customers, List<IVehicle> vehiclesForRent, int numberOfBookings = 0)
+    {
+        var rnd = new Random();
+        var bookingsList = new List<IBooking>();
+        if (numberOfBookings <= 0) numberOfBookings = rnd.Next(customers.Count);
+
+       /* for (int i = 0; i < numberOfBookings; i++)
+        {
+            if (i == 0)
+                var newBooking = new Booking(vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)], customers[rnd.Next(customers.Count - 1)], GenerateDate(GeneratedDateVariants.BookingsDate));
+        }
+       */
+        throw new NotImplementedException();
     }
 
     public List<IPerson> GenerateIPersonList(int numberOfPersons = 4)
@@ -38,7 +52,7 @@ public sealed class DataProducer
                 string firtName = FirstNames[rnd.Next(FirstNames.Count - 1)];
                 string lastName = LastNames[rnd.Next(LastNames.Count - 1)];
                 string SSN = GenerateSSN();
-                DateOnly date = GenerateDate();
+                DateOnly date = GenerateDate(GeneratedDateVariants.RegistryDate);
                 var cus = new Customer(firtName, lastName, SSN, date, customerId);
                 customerId++;
                 list.Add(cus);
@@ -93,8 +107,8 @@ public sealed class DataProducer
     private IVehicle GetVehicle(string licencePlate, int id)
     {
         var rnd = new Random();
-        bool car = rnd.Next(10) <= 9;
-        CarManufacturer manu = (CarManufacturer)rnd.Next(0, 6);
+        bool car = rnd.Next(10) <= 5;
+        VehicleManufacturer manu = car ? (VehicleManufacturer)rnd.Next(0, totalCarManu) : motoMakers[rnd.Next(motoMakers.Count)];
         VehicleTypes type = (VehicleTypes)rnd.Next(0, 3);
         int odo = rnd.Next(1000, 20000);
 
@@ -102,31 +116,40 @@ public sealed class DataProducer
         return vehicle;
     }
 
-    private double GetCost(CarManufacturer manufacturer, bool milageCost = false)
+    private double GetCost(VehicleManufacturer manufacturer, bool milageCost = false)
     {
         double cost = 0;
         switch (manufacturer)
         {
-            case CarManufacturer.Volvo:
-                cost = milageCost ? 1.2d : 210;
+            case VehicleManufacturer.Volvo:
+                cost = milageCost ? 1.25d : 210;
                 break;
-            case CarManufacturer.KIA:
-                cost = milageCost ? 0.8d : 200;
+            case VehicleManufacturer.KIA:
+                cost = milageCost ? 0.88d : 200;
                 break;
-            case CarManufacturer.Jeep:
-                cost = milageCost ? 2.1d : 230;
+            case VehicleManufacturer.Jeep:
+                cost = milageCost ? 2.12d : 230;
                 break;
-            case CarManufacturer.Ford:
+            case VehicleManufacturer.Ford:
                 cost = milageCost ? 1.2d : 200;
                 break;
-            case CarManufacturer.Toyota:
+            case VehicleManufacturer.Toyota:
                 cost = milageCost ? 1.5d : 110;
                 break;
-            case CarManufacturer.Škoda:
-                cost = milageCost ? 1.2d : 140;
+            case VehicleManufacturer.Škoda:
+                cost = milageCost ? 1.22d : 140;
                 break;
-            case CarManufacturer.Rivian:
-                cost = milageCost ? 0.8d : 300;
+            case VehicleManufacturer.Rivian:
+                cost = milageCost ? 0.85d : 300;
+                break;
+            case VehicleManufacturer.BMW:
+                cost = milageCost ? 2.1d : 230;
+                break;
+            case VehicleManufacturer.Honda:
+                cost = milageCost ? 1.52d : 100;
+                break;
+            case VehicleManufacturer.Suzuki:
+                cost = milageCost ? 1.12d : 190;
                 break;
         }
         return cost;
@@ -145,13 +168,26 @@ public sealed class DataProducer
     private string GenerateSSN()
     {
         var rnd = new Random();
-        return GenerateDate(true).ToShortDateString() + rnd.Next(1000, 9999);
+        return GenerateDate(GeneratedDateVariants.DateOfBirth).ToShortDateString() + rnd.Next(1000, 9999);
     }
 
-    private DateOnly GenerateDate(bool generateDOB = false)
+    private DateOnly GenerateDate(GeneratedDateVariants dateVariant)
     {
         var rnd = new Random();
-        var date = new DateOnly(generateDOB ? rnd.Next(1940, 2003) : rnd.Next(2020, 2023), rnd.Next(1, 12), rnd.Next(1, 31));
+        var date = new DateOnly();
+        switch (dateVariant)
+        {
+            case GeneratedDateVariants.DateOfBirth:
+                date = new DateOnly(rnd.Next(1940, 2003), rnd.Next(1, 12), rnd.Next(1, 31));
+                break;
+            case GeneratedDateVariants.RegistryDate:
+                date = new DateOnly(rnd.Next(2020, 2023), rnd.Next(1, 12), rnd.Next(1, 31));
+                break;
+            case GeneratedDateVariants.BookingsDate:
+                date = new DateOnly(2023, DateTime.Now.Month, rnd.Next(1, DateTime.Now.Day));
+                break;
+        }
+        //var date = new DateOnly(bool ? rnd.Next(1940, 2003) : rnd.Next(2020, 2023), rnd.Next(1, 12), rnd.Next(1, 31));
         return date;
     }
 
@@ -164,14 +200,25 @@ public sealed class DataProducer
 
     #endregion
 
-    enum CarManufacturer
+    private const int totalCarManu = 10;
+    enum VehicleManufacturer
     {
+        Toyota,
+        BMW,
+        Honda,
+        Suzuki,
         Volvo,
         KIA,
         Jeep,
         Ford,
-        Toyota,
         Škoda,
         Rivian
+    }
+
+    enum GeneratedDateVariants
+    {
+        DateOfBirth,
+        RegistryDate,
+        BookingsDate
     }
 }

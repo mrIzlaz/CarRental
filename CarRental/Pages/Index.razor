@@ -5,7 +5,7 @@
 @using CarRental.Business.Classes
 @using CarRental.Common.Enums
 @using CarRental.Common.Interfaces
-@*@inject BookingProcessor bp*@
+@inject BookingProcessor bp
 @inject HttpClient Http
 
 <PageTitle>Car Rental</PageTitle>
@@ -173,7 +173,6 @@
         }
     </div>
     <h3>Customers</h3>
-    Debug: @debugMessage
     @if (bp == null || customers == null)
     {
         <p><em>Loading...</em></p>
@@ -215,7 +214,7 @@
     private VehicleData[]? vehicleData;
     private BookingData[]? bookingData;
     private CustomerData[]? customerData;
-    BookingProcessor? bp;
+    //BookingProcessor? bp;
     protected override async Task OnInitializedAsync()
     {
 
@@ -229,7 +228,7 @@
     {
         try
         {
-            bp = new BookingProcessor(new CollectionData());
+            //bp = new BookingProcessor(new CollectionData());
             customers = (List<Customer>)bp.GetCustomers();
             vehicles = (List<IVehicle>)bp.GetVehicles();
             debugMessage = $"List Size {customers?.Count()}, {customers?.FirstOrDefault()?.FirstName}";
