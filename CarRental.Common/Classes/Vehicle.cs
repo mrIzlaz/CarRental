@@ -19,8 +19,6 @@ public abstract class Vehicle : IVehicle
     public int dayCost = 0;
     public double kmCost = 0;
 
-
-
     protected string? Description { get; set; }
 
     public string GetLicencePlate() => LicencePlate;
@@ -30,5 +28,7 @@ public abstract class Vehicle : IVehicle
     public int GetOdometer() => Odometer;
     public int GetDayCost() => dayCost;
     public double GetKmCost() => kmCost;
-    public VehicleStatus GetBookingStatus() => VehicleStatus;
+    public VehicleStatus GetVehicleStatus() => VehicleStatus;
+    public void UpdateBookingStatus(VehicleStatus status) => VehicleStatus = status;
+    public void UpdateBookingStatus(bool isBooked) => VehicleStatus = isBooked ? VehicleStatus.Booked : VehicleStatus.Available;
 }

@@ -4,7 +4,7 @@ using CarRental.Common.Enums;
 using CarRental.Common.Interfaces;
 using CarRental.Data.Interfaces;
 using System.Collections.Generic;
-
+using CarRental.Common.Classes;
 
 public class CollectionData : IData
 {
@@ -17,9 +17,9 @@ public class CollectionData : IData
 
     public IEnumerable<IBooking> GetBookings() => _bookings;
     public IEnumerable<IPerson> GetPersons() => _persons;
-    public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = 0)
+    public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = default)
     {
-        return _vehicles;
+        return status == default ? _vehicles : _vehicles.Where(x => x.GetVehicleStatus() == status);
     }
 
     #region VG
@@ -34,13 +34,19 @@ public class CollectionData : IData
     {
         try
         {
-            var perList = producer.GenerateIPersonList(4);
+            var perList = producer.GenerateIPersonList(8);
             _persons.AddRange(perList);
 
-            var vehlist = producer.GenerateIVehicleList();
+            var vehlist = producer.GenerateIVehicleList(14);
             _vehicles.AddRange(vehlist);
 
-            //var booklist = producer.GenerateIBookingsList();
+            var customers = _persons.Where(x => x is Customer).Cast<Customer>().ToList();
+            var cus = customers.GetRange(0, customers.Count);
+            var veh = _vehicles.GetRange(0, _vehicles.Count);
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Booked, 2));
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Available, 2));
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Unavailable, 1));
+
         }
         catch (Exception ex)
         {

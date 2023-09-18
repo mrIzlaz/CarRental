@@ -33,11 +33,10 @@ public class Customer : IPerson
     {
         return LastName;
     }
-
     public string GetFullInfo()
     {
         var ssn = GetSecurityNumberUSFormated();
-        return $"{GetFirstname()} {GetLastname} ({ssn})";
+        return $"{GetFirstname()} {GetLastname()} ({ssn})";
     }
 
     public string GetSecurityFormated(bool USFormat) => USFormat ? GetSecurityNumberUSFormated() : GetSecurityNumberSEFormated();

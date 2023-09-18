@@ -12,10 +12,8 @@
 
 <h1>Car Rental</h1>
 <div>
-    <input class="form-check-input" type="checkbox" @bind="@showDummyList" value="" id="flexCheckDefault">
-    <label class="form-check-label px-2" for="flexCheckDefault">
-        Show placeholder data
-    </label>
+    <input class="form-check-input" type="checkbox" @bind="@showDummyList" value="" id="flexCheckDefault">  <label class="form-check-label px-2" for="flexCheckDefault">Show placeholder data</label>
+    <input class="form-check-input" type="checkbox" @bind="@showParaMeterValues" value="" id="flexCheckDefault">  <label class="form-check-label px-2" for="flexCheckDefault">Show Setup data</label>
 
 </div>
 @if (showDummyList)
@@ -132,11 +130,72 @@
 
     </div>
 }
-
-<div>
+else
+{
+    @*<button class="btn btn-primary" @onclick="IncrementCount">Increase!</button>*@
     <div>
-        <h3>Vehicles</h3>
-        @if (bp == null || vehicles == null)
+        <div>
+            <h3>Vehicles</h3>
+            <div class="d-flex">
+                @*<div><button class="btn btn-primary" @onclick="ShowAvailable">Show Available</button> </div>*@
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked @onclick="ShowAll">
+                    <label class="form-check-label" for="flexRadioDefault2">
+                        Show All
+                    </label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="ShowBooked">
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        Only Booked
+                    </label>
+                </div>   <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="ShowAvailable">
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        Only Available
+                    </label>
+                </div>
+            </div>
+            @if (bp == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover w-80">
+                    <thead>
+                        <tr class="align-items-baseline">
+                            <th>RegNo.</th>
+                            <th>Make</th>
+                            <th>Odometer</th>
+                            <th>Cost Km</th>
+                            <th>Vehicle Type</th>
+                            <th>$ Day</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var vehicleInfo in bp.GetVehicles(visibleVehicle))
+                        {
+                            <tr>
+                                <td><strong>@vehicleInfo.GetLicencePlate()</strong></td>
+                                <td>@vehicleInfo.GetManufacturer()</td>
+                                <td>@vehicleInfo.GetOdometer()</td>
+                                <td>@vehicleInfo.GetKmCost() $/km</td>
+                                <td>@vehicleInfo.GetVehicleType().ToString()</td>
+                                <td>@vehicleInfo.GetDayCost() $/d</td>
+                                <td class="align-items-center"><span class="badge rounded-pill @(GetVehicleStatusTag(vehicleInfo.GetVehicleStatus())) ">@vehicleInfo.GetVehicleStatus().ToString()</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <br />
+            }
+        </div>
+
+        <h3>Bookings</h3>
+        <p>@debugMessage</p>
+        @if (bp == null)
         {
             <p><em>Loading...</em></p>
         }
@@ -146,99 +205,89 @@
                 <thead>
                     <tr class="align-items-baseline">
                         <th>RegNo.</th>
-                        <th>Make</th>
-                        <th>Odometer</th>
-                        <th>Cost Km</th>
-                        <th>Vehicle Type</th>
-                        <th>$ Day</th>
+                        <th>Customer</th>
+                        <th>Start Km</th>
+                        <th>Return Km</th>
+                        <th>Rent Date</th>
+                        <th>Return Date</th>
+                        <th>Total Cost $</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var vehicleInfo in vehicles)
+                    @foreach (var bookingInfo in bp.GetBookings())
                     {
                         <tr>
-                            <td><strong>@vehicleInfo.GetLicencePlate()</strong></td>
-                            <td>@vehicleInfo.GetManufacturer()</td>
-                            <td>@vehicleInfo.GetOdometer()</td>
-                            <td>@vehicleInfo.GetKmCost() $/km</td>
-                            <td>@vehicleInfo.GetVehicleType().ToString()</td>
-                            <td>@vehicleInfo.GetDayCost() $/d</td>
-                            <td class="align-items-center"><span class="badge rounded-pill @(IsBooked(vehicleInfo.GetBookingStatus()) ? "text-bg-light" : "text-bg-success") ">@vehicleInfo.GetBookingStatus().ToString()</span></td>
+                            <td><strong>@bookingInfo.LicensePlate()</strong></td>
+                            <td>@bookingInfo.CustomerName()</td>
+                            <td>@bookingInfo.GetOdometerStart()</td>
+                            <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetOdometerReturn()) </td>
+                            <td>@bookingInfo.GetStartDate().ToShortDateString()</td>
+                            <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetReturnDate()?.ToShortDateString())</td>
+                            <td>@(bookingInfo.IsBookingActive() ? "-" : @bookingInfo.GetTotalCost()) $</td>
+                            <td class="align-items-center"><span class="badge @GetBookingStatusTag(bookingInfo.BookingStatus()) ">@(bookingInfo.IsBookingActive() ? "Open" : "Closed")</span></td>
                         </tr>
                     }
                 </tbody>
             </table>
             <br />
         }
-    </div>
-    <h3>Customers</h3>
-    @if (bp == null || customers == null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else
-    {
-        <table class="table table-striped table-hover w-50">
-            <thead>
-                <tr class="align-items-baseline">
-                    <th>SSN</th>
-                    <th>Last Name</th>
-                    <th>First Name</th>
-                    <th>Registry Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var customerInfo in customers)
-                {
-                    <tr>
-                        <td><strong>@customerInfo.GetSecurityFormated(true)</strong></td>
-                        <td>@customerInfo.GetLastname()</td>
-                        <td>@customerInfo.GetFirstname()</td>
-                        <td>@customerInfo.RegistryDate.ToShortDateString()</td>
+        <h3>Customers</h3>
+        @if (bp == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table table-striped table-hover w-50">
+                <thead>
+                    <tr class="align-items-baseline">
+                        <th>SSN</th>
+                        <th>Last Name</th>
+                        <th>First Name</th>
+                        <th>Registry Date</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
+                </thead>
+                <tbody>
+                    @foreach (var customerInfo in bp.GetCustomers())
+                    {
+                        <tr>
+                            <td><strong>@customerInfo.GetSecurityFormated(true)</strong></td>
+                            <td>@customerInfo.GetLastname()</td>
+                            <td>@customerInfo.GetFirstname()</td>
+                            <td>@customerInfo.RegistryDate.ToShortDateString()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
 
-</div>
+    </div>
+}
 
 @code {
     bool showDummyList = false;
+    bool showParaMeterValues = false; //Set these up via a Static Singleton which Collection Data checks on setup?
     string debugMessage = "";
 
-    private List<Customer> customers;
-    private List<IVehicle> vehicles;
+    private VehicleStatus visibleVehicle = default;
 
+    public void ShowAvailable() => visibleVehicle = VehicleStatus.Available;
+
+    public void ShowBooked() => visibleVehicle = VehicleStatus.Booked;
+    public void ShowAll() => visibleVehicle = default;
+
+
+    #region Placeholder Static Data
     private VehicleData[]? vehicleData;
     private BookingData[]? bookingData;
     private CustomerData[]? customerData;
-    //BookingProcessor? bp;
     protected override async Task OnInitializedAsync()
     {
-
         vehicleData = await Http.GetFromJsonAsync<VehicleData[]>("sample-data/vehicles.json");
         bookingData = await Http.GetFromJsonAsync<BookingData[]>("sample-data/bookings.json");
         customerData = await Http.GetFromJsonAsync<CustomerData[]>("sample-data/customers.json");
-        Setup();
     }
-
-    public void Setup()
-    {
-        try
-        {
-            //bp = new BookingProcessor(new CollectionData());
-            customers = (List<Customer>)bp.GetCustomers();
-            vehicles = (List<IVehicle>)bp.GetVehicles();
-            debugMessage = $"List Size {customers?.Count()}, {customers?.FirstOrDefault()?.FirstName}";
-        }
-        catch (Exception e)
-        {
-            debugMessage = e.Message;
-        }
-    }
-
     public class VehicleData
     {
         public required string RegNum { get; set; }
@@ -273,5 +322,39 @@
     public bool IsBooked(VehicleStatus status)
     {
         return status == VehicleStatus.Booked;
+    }
+
+    #endregion
+
+    public string GetVehicleStatusTag(VehicleStatus status)
+    {
+        switch (status)
+        {
+            case VehicleStatus.Booked:
+                return "text-bg-light";
+            case VehicleStatus.Available:
+                return "text-bg-success";
+            case VehicleStatus.Planned:
+                return "text-bg-warning";
+            case VehicleStatus.Unavailable:
+                return "text-bg-dark";
+        }
+        return "";
+    }
+
+    public string GetBookingStatusTag(VehicleStatus status)
+    {
+        switch (status)
+        {
+            case VehicleStatus.Booked:
+                return "text-bg-danger";
+            case VehicleStatus.Available:
+                return "text-bg-success";
+            case VehicleStatus.Planned:
+                return "text-bg-warning";
+            case VehicleStatus.Unavailable:
+                return "text-bg-dark";
+        }
+        return "";
     }
 }

@@ -1,7 +1,6 @@
 ﻿using CarRental.Common.Classes;
 using CarRental.Common.Enums;
 using CarRental.Common.Interfaces;
-using System.Numerics;
 using System.Text;
 
 namespace CarRental.Data.Classes;
@@ -11,37 +10,48 @@ public sealed class DataProducer
     private int customerId = 0;
     private int carID = 0;
     readonly char[] charData = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'X', 'Y', 'Z' };
-    Dictionary<string, IVehicle> CarLib = new Dictionary<string, IVehicle>();
+    Dictionary<string, IVehicle> _carLib = new Dictionary<string, IVehicle>();
+    Dictionary<string, IBooking> _bookings = new Dictionary<string, IBooking>();
     List<VehicleManufacturer> motoMakers = new List<VehicleManufacturer>() { VehicleManufacturer.Toyota, VehicleManufacturer.BMW, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
     public DataProducer()
     {
 
-
-
     }
 
-    public List<IBooking> GenerateIBookingsList(List<Customer> customers, List<IVehicle> vehiclesForRent, int numberOfBookings = 0)
+    public List<IBooking> GenerateIBookingsList(List<Customer> customers, List<IVehicle> vehiclesForRent, VehicleStatus vehicleStatus, int numberOfBookings = 0)
     {
         var rnd = new Random();
-        var bookingsList = new List<IBooking>();
         if (numberOfBookings <= 0) numberOfBookings = rnd.Next(customers.Count);
 
-       /* for (int i = 0; i < numberOfBookings; i++)
+        Booking newBooking;
+        for (int i = 0; i < numberOfBookings; i++)
         {
-            if (i == 0)
-                var newBooking = new Booking(vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)], customers[rnd.Next(customers.Count - 1)], GenerateDate(GeneratedDateVariants.BookingsDate));
+            int trials = 8;
+            do
+            {
+                newBooking = GetNewBooking(customers, vehiclesForRent, vehicleStatus);
+                if (_bookings.TryAdd(newBooking.LicensePlate(), newBooking))
+                    break;
+                trials--;
+            } while (trials >= 0);
+
+            if (trials <= 0)
+            {
+                throw new Exception("Bookings failed to complete properly (booking trials exceeded)");
+            }
         }
-       */
-        throw new NotImplementedException();
+
+        return GetBookings(vehicleStatus);
     }
+
 
     public List<IPerson> GenerateIPersonList(int numberOfPersons = 4)
     {
         if (numberOfPersons < 1) throw new Exception($"numberOfPersons needs to have at least 1, had {numberOfPersons}");
 
         var rnd = new Random();
-        List<string> LastNames = new List<string>() { "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon" };
         List<string> FirstNames = new List<string>() { "Margot", "Astrid", "Charles", "Sean", "Crow", "Welsh", "Tim", "Bob" };
+        List<string> LastNames = new List<string>() { "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon" };
 
         List<IPerson> list = new List<IPerson>();
 
@@ -78,7 +88,7 @@ public sealed class DataProducer
         foreach (var plate in plates)
         {
             var vehicle = GetVehicle(plate, carID);
-            if (CarLib.TryAdd(plate, vehicle))
+            if (_carLib.TryAdd(plate, vehicle))
             {
                 carID++;
                 list.Add(vehicle);
@@ -90,7 +100,7 @@ public sealed class DataProducer
             trials--;
             var plate = GetSingleLicencePlate();
             var vehicle = GetVehicle(plate, carID);
-            if (CarLib.TryAdd(plate, vehicle))
+            if (_carLib.TryAdd(plate, vehicle))
             {
                 carID++;
                 fails--;
@@ -102,21 +112,56 @@ public sealed class DataProducer
 
     }
 
-    #region Help Methods
+    #region Helper Methods
 
     private IVehicle GetVehicle(string licencePlate, int id)
     {
         var rnd = new Random();
         bool car = rnd.Next(10) <= 5;
-        VehicleManufacturer manu = car ? (VehicleManufacturer)rnd.Next(0, totalCarManu) : motoMakers[rnd.Next(motoMakers.Count)];
+        VehicleManufacturer manu = car ? (VehicleManufacturer)rnd.Next(0, TotalCarManu) : motoMakers[rnd.Next(motoMakers.Count)];
         VehicleTypes type = (VehicleTypes)rnd.Next(0, 3);
         int odo = rnd.Next(1000, 20000);
 
-        IVehicle vehicle = car ? new Car(id, licencePlate, manu.ToString(), type, odo, (int)GetCost(manu), GetCost(manu, true), "") : new Motorcycle(id, licencePlate, manu.ToString(), odo, (int)GetCost(manu), GetCost(manu, true), "");
+        IVehicle vehicle = car ? new Car(id, licencePlate, manu.ToString(), type, odo, (int)GetVehicleCost(manu), GetVehicleCost(manu, true), "") : new Motorcycle(id, licencePlate, manu.ToString(), odo, (int)GetVehicleCost(manu), GetVehicleCost(manu, true), "");
         return vehicle;
     }
 
-    private double GetCost(VehicleManufacturer manufacturer, bool milageCost = false)
+    private Booking GetNewBooking(List<Customer> customers, List<IVehicle> vehiclesForRent, VehicleStatus bookingStatus)
+    {
+        var rnd = new Random();
+        var vehicle = vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)];
+        var customer = customers[rnd.Next(customers.Count - 1)];
+        var startDate = GenerateDate(GeneratedDateVariants.BookingsDate).ToDateTime(new TimeOnly());
+        Booking newBooking = new Booking(vehicle, customer, startDate);
+        switch (bookingStatus)
+        {
+            case VehicleStatus.Available:
+                newBooking.TryCloseBooking(GetReturnDate(startDate), newBooking.GetOdometerStart() + rnd.Next(100, 1200));
+                return newBooking;
+            case VehicleStatus.Booked:
+                return newBooking;
+            case VehicleStatus.Planned:
+                return new Booking(vehicle, customer, startDate, GetReturnDate(startDate), bookingStatus);
+            case VehicleStatus.Unavailable:
+                var note = rnd.Next(3) == 1 ? "At repairshop til return" : "";
+                return new Booking(vehicle, customer, startDate, GetReturnDate(startDate), bookingStatus, note);
+        }
+        return newBooking;
+    }
+    private List<IBooking> GetBookings(VehicleStatus vehicleStatus)
+    {
+        var list = new List<IBooking>();
+        foreach (var booking in _bookings)
+        {
+            if (booking.Value.BookingStatus() == vehicleStatus)
+                list.Add(booking.Value);
+        }
+        return list;
+    }
+
+    private DateTime GetReturnDate(DateTime startDate) => startDate.AddDays(new Random().Next(5, 90));
+
+    private double GetVehicleCost(VehicleManufacturer manufacturer, bool milageCost = false)
     {
         double cost = 0;
         switch (manufacturer)
@@ -200,7 +245,7 @@ public sealed class DataProducer
 
     #endregion
 
-    private const int totalCarManu = 10;
+    private const int TotalCarManu = 10;
     enum VehicleManufacturer
     {
         Toyota,

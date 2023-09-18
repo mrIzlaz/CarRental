@@ -5,7 +5,6 @@ namespace CarRental.Common.Interfaces;
 
 public interface IBooking
 {
-
     public bool TryCloseBooking(DateTime returnDate, int odometerReturn);
     public string LicensePlate();
     public string CustomerName();
@@ -16,5 +15,6 @@ public interface IBooking
     public DateTime? GetReturnDate();
     public double? GetTotalCost();
     public VehicleStatus BookingStatus();
-
+    public bool IsBookingActive();
+    public string? GetNotes();
 }

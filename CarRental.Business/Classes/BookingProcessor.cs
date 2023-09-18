@@ -8,7 +8,6 @@ namespace CarRental.Business.Classes;
 public class BookingProcessor
 {
     private readonly IData _db;
-
     public BookingProcessor(IData db) => _db = db;
 
     public IEnumerable<Customer> GetCustomers()
@@ -18,12 +17,13 @@ public class BookingProcessor
     }
     public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = default)
     {
-        var list = _db.GetVehicles().ToList();
+        var list = status == default ? _db.GetVehicles().ToList() : _db.GetVehicles().Where(x => x.GetVehicleStatus() == status).ToList();
         return list.GetRange(0, list.Count);
     }
 
     public IEnumerable<IBooking> GetBookings()
     {
-        throw new NotImplementedException();
+        var list = _db.GetBookings().ToList();
+        return list.GetRange(0, list.Count);
     }
 }
