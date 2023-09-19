@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CarRental.Data.Classes;
 
-public sealed class DataProducer
+public sealed class DataFactory
 {
     private int customerId = 0;
     private int carID = 0;
@@ -13,7 +13,7 @@ public sealed class DataProducer
     Dictionary<string, IVehicle> _carLib = new Dictionary<string, IVehicle>();
     Dictionary<string, IBooking> _bookings = new Dictionary<string, IBooking>();
     List<VehicleManufacturer> motoMakers = new List<VehicleManufacturer>() { VehicleManufacturer.Toyota, VehicleManufacturer.BMW, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
-    public DataProducer()
+    public DataFactory()
     {
 
     }
@@ -50,8 +50,8 @@ public sealed class DataProducer
         if (numberOfPersons < 1) throw new Exception($"numberOfPersons needs to have at least 1, had {numberOfPersons}");
 
         var rnd = new Random();
-        List<string> FirstNames = new List<string>() { "Margot", "Astrid", "Charles", "Sean", "Crow", "Welsh", "Tim", "Bob" };
-        List<string> LastNames = new List<string>() { "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon" };
+        List<string> FirstNames = new List<string>() { "Margot", "Astrid", "Charles", "Sean", "Crow", "Welsh", "Tim", "Bob", "Clarence", "Eva", "Lena", "Thomas", "Kent", "Sam" };
+        List<string> LastNames = new List<string>() { "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon", "Smith", "Kimchi", "Clarkson" };
 
         List<IPerson> list = new List<IPerson>();
 
@@ -61,9 +61,10 @@ public sealed class DataProducer
             {
                 string firtName = FirstNames[rnd.Next(FirstNames.Count - 1)];
                 string lastName = LastNames[rnd.Next(LastNames.Count - 1)];
+                string SE_SSN = GenerateSE_SSN();
                 string SSN = GenerateSSN();
                 DateOnly date = GenerateDate(GeneratedDateVariants.RegistryDate);
-                var cus = new Customer(firtName, lastName, SSN, date, customerId);
+                var cus = new Customer(firtName, lastName, SSN, SE_SSN, date, customerId);
                 customerId++;
                 list.Add(cus);
             }
@@ -129,7 +130,7 @@ public sealed class DataProducer
     private Booking GetNewBooking(List<Customer> customers, List<IVehicle> vehiclesForRent, VehicleStatus bookingStatus)
     {
         var rnd = new Random();
-        var vehicle = vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)];
+        var vehicle = GetUnbookedVehicle(vehiclesForRent);
         var customer = customers[rnd.Next(customers.Count - 1)];
         var startDate = GenerateDate(GeneratedDateVariants.BookingsDate).ToDateTime(new TimeOnly());
         Booking newBooking = new Booking(vehicle, customer, startDate);
@@ -140,26 +141,57 @@ public sealed class DataProducer
                 return newBooking;
             case VehicleStatus.Booked:
                 return newBooking;
-            case VehicleStatus.Planned:
-                return new Booking(vehicle, customer, startDate, GetReturnDate(startDate), bookingStatus);
             case VehicleStatus.Unavailable:
-                var note = rnd.Next(3) == 1 ? "At repairshop til return" : "";
+                var note = "At repairshop til return";
                 return new Booking(vehicle, customer, startDate, GetReturnDate(startDate), bookingStatus, note);
+            default:
+                return newBooking;
         }
-        return newBooking;
+
+    }
+
+    private Customer TryGetAvailableCustomer(List<Customer> customers)
+    {
+        var rnd = new Random();
+        var customer = customers[rnd.Next(customers.Count - 1)];
+        foreach (var booking in _bookings)
+        {
+            if (booking.Value.CustomerID() == customer.CustomerId)
+            {
+                customer = customers[rnd.Next(customers.Count - 1)]; //TODO: CHECK THIS CODE. IS NOT TESTED!!!!!!
+            }
+        }
+        return customer;
+    }
+
+    private IVehicle GetUnbookedVehicle(List<IVehicle> vehiclesForRent)
+    {
+        var rnd = new Random();
+        var vehicle = vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)];
+        while (_bookings.ContainsKey(vehicle.GetLicencePlate()))
+            vehicle = vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)];
+
+        return vehicle;
     }
     private List<IBooking> GetBookings(VehicleStatus vehicleStatus)
     {
         var list = new List<IBooking>();
         foreach (var booking in _bookings)
         {
-            if (booking.Value.BookingStatus() == vehicleStatus)
+            if (booking.Value.GetBookingStatus() == vehicleStatus)
                 list.Add(booking.Value);
         }
         return list;
     }
 
-    private DateTime GetReturnDate(DateTime startDate) => startDate.AddDays(new Random().Next(5, 90));
+    private DateTime GetReturnDate(DateTime startDate, bool resetToToday = true)
+    {
+        var returnDate = startDate.AddDays(new Random().Next(5, 90));
+        if (resetToToday && returnDate.DayOfYear > DateTime.Today.DayOfYear)
+            return DateTime.Today;
+        else
+            return returnDate;
+    }
 
     private double GetVehicleCost(VehicleManufacturer manufacturer, bool milageCost = false)
     {
@@ -210,10 +242,21 @@ public sealed class DataProducer
         return sb.ToString();
     }
 
+    private string GenerateSE_SSN()
+    {
+        var rnd = new Random();
+        StringBuilder sb = new StringBuilder();
+        var date = GenerateDate(GeneratedDateVariants.DateOfBirth);
+        sb.Append(date.Year.ToString().Substring(2, 2));
+        sb.Append(date.Month);
+        sb.Append(date.Day);
+        sb.Append("-" + rnd.Next(1000, 9999));
+        return date.ToString();
+    }
     private string GenerateSSN()
     {
         var rnd = new Random();
-        return GenerateDate(GeneratedDateVariants.DateOfBirth).ToShortDateString() + rnd.Next(1000, 9999);
+        return "" + rnd.NextInt64(100000000, 999999999);
     }
 
     private DateOnly GenerateDate(GeneratedDateVariants dateVariant)

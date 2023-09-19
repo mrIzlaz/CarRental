@@ -13,8 +13,6 @@
 <h1>Car Rental</h1>
 <div>
     <input class="form-check-input" type="checkbox" @bind="@showDummyList" value="" id="flexCheckDefault">  <label class="form-check-label px-2" for="flexCheckDefault">Show placeholder data</label>
-    <input class="form-check-input" type="checkbox" @bind="@showParaMeterValues" value="" id="flexCheckDefault">  <label class="form-check-label px-2" for="flexCheckDefault">Show Setup data</label>
-
 </div>
 @if (showDummyList)
 {
@@ -224,8 +222,8 @@ else
                             <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetOdometerReturn()) </td>
                             <td>@bookingInfo.GetStartDate().ToShortDateString()</td>
                             <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetReturnDate()?.ToShortDateString())</td>
-                            <td>@(bookingInfo.IsBookingActive() ? "-" : @bookingInfo.GetTotalCost()) $</td>
-                            <td class="align-items-center"><span class="badge @GetBookingStatusTag(bookingInfo.BookingStatus()) ">@(bookingInfo.IsBookingActive() ? "Open" : "Closed")</span></td>
+                            <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetTotalCost() + " $")</td>
+                            <td class="align-items-center"><span class="badge @GetBookingStatusTag(bookingInfo.GetBookingStatus()) ">@(GetBookingStatusLabel(bookingInfo.GetBookingStatus()))</span></td>
                         </tr>
                     }
                 </tbody>
@@ -236,7 +234,7 @@ else
         @if (bp == null)
         {
             <p><em>Loading...</em></p>
-        }
+        }s
         else
         {
             <table class="table table-striped table-hover w-50">
@@ -331,11 +329,9 @@ else
         switch (status)
         {
             case VehicleStatus.Booked:
-                return "text-bg-light";
+                return "text-bg-danger";
             case VehicleStatus.Available:
                 return "text-bg-success";
-            case VehicleStatus.Planned:
-                return "text-bg-warning";
             case VehicleStatus.Unavailable:
                 return "text-bg-dark";
         }
@@ -350,11 +346,25 @@ else
                 return "text-bg-danger";
             case VehicleStatus.Available:
                 return "text-bg-success";
-            case VehicleStatus.Planned:
-                return "text-bg-warning";
             case VehicleStatus.Unavailable:
                 return "text-bg-dark";
         }
         return "";
     }
+
+    public string GetBookingStatusLabel(VehicleStatus status)
+    {
+
+        switch (status)
+        {
+            case VehicleStatus.Booked:
+                return "Open";
+            case VehicleStatus.Available:
+                return "Closed";
+            case VehicleStatus.Unavailable:
+                return "Maintenance";
+        }
+        return "";
+    }
+
 }

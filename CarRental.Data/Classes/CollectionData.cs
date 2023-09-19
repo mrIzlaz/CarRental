@@ -8,7 +8,7 @@ using CarRental.Common.Classes;
 
 public class CollectionData : IData
 {
-    DataProducer producer = new DataProducer();
+    DataFactory producer = new DataFactory();
     readonly List<IPerson> _persons = new List<IPerson>();
     readonly List<IVehicle> _vehicles = new List<IVehicle>();
     readonly List<IBooking> _bookings = new List<IBooking>();
@@ -34,6 +34,7 @@ public class CollectionData : IData
     {
         try
         {
+            var rnd = new Random();
             var perList = producer.GenerateIPersonList(8);
             _persons.AddRange(perList);
 
@@ -43,9 +44,9 @@ public class CollectionData : IData
             var customers = _persons.Where(x => x is Customer).Cast<Customer>().ToList();
             var cus = customers.GetRange(0, customers.Count);
             var veh = _vehicles.GetRange(0, _vehicles.Count);
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Booked, 2));
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Available, 2));
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Unavailable, 1));
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Booked, rnd.Next(3)));
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Available, rnd.Next(3)));
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Unavailable, rnd.Next(3)));
 
         }
         catch (Exception ex)

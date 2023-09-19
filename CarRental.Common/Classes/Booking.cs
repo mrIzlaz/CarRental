@@ -12,7 +12,7 @@ public class Booking : IBooking
     private Customer Customer { get; init; }
 
     public DateTime StartDate { get; init; }
-    public DateTime? ReturnDate { get; set; }
+    public DateTime ReturnDate { get; set; }
 
     private int OdometerStart { get; set; }
 
@@ -28,7 +28,7 @@ public class Booking : IBooking
         Customer = customer;
         OdometerStart = Vehicle.GetOdometer();
         StartDate = startDate;
-        ReturnDate = null;
+        ReturnDate = startDate;
     }
     public Booking(IVehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate, VehicleStatus bookingStatus)
     {
@@ -79,9 +79,9 @@ public class Booking : IBooking
     private void SetTotalCost()
     {
         var dif = OdometerStart - Vehicle.Odometer;
-        var years = ReturnDate?.Year - StartDate.Year;
-        var days = (ReturnDate?.DayOfYear + (years * DaysInAYear) - StartDate.DayOfYear);
-        TotalCost = (dif * Vehicle.kmCost) + (days * Vehicle.dayCost);
+        var years = ReturnDate.Year - StartDate.Year;
+        var days = (ReturnDate.DayOfYear + (years * DaysInAYear) - StartDate.DayOfYear);
+        TotalCost = Math.Round(Math.Abs((dif * Vehicle.kmCost) + (days * Vehicle.dayCost)), 2);
     }
 
     public bool TrySetOdometerReturn(int value)
@@ -94,9 +94,10 @@ public class Booking : IBooking
         return true;
 
     }
-    public VehicleStatus BookingStatus() => Vehicle.GetVehicleStatus();
+    public VehicleStatus GetBookingStatus() => Vehicle.GetVehicleStatus();
 
     public string CustomerName() => Customer.GetFullInfo();
+    public int CustomerID() => Customer.CustomerId;
 
     public string LicensePlate() => Vehicle.GetLicencePlate();
 
