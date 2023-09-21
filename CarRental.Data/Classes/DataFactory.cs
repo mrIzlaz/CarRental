@@ -10,14 +10,20 @@ public sealed class DataFactory
     private int customerId = 0;
     private int carID = 0;
     readonly char[] charData = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'X', 'Y', 'Z' };
-    Dictionary<string, IVehicle> _carLib = new Dictionary<string, IVehicle>();
-    Dictionary<string, IBooking> _bookings = new Dictionary<string, IBooking>();
-    List<VehicleManufacturer> motoMakers = new List<VehicleManufacturer>() { VehicleManufacturer.Toyota, VehicleManufacturer.BMW, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
-    public DataFactory()
-    {
+    private Dictionary<string, IVehicle> _carLib = new Dictionary<string, IVehicle>();
+    private Dictionary<string, IBooking> _bookings = new Dictionary<string, IBooking>();
+    private List<VehicleManufacturer> motoMakers = new List<VehicleManufacturer>() { VehicleManufacturer.Toyota, VehicleManufacturer.BMW, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
 
-    }
-
+    /// <summary>
+    /// Returns a generated List of IBookings from parameters. Verify there's enough entities in <paramref name="vehiclesForRent"/> for it to succeed.<br></br>
+    /// <paramref name="vehicleStatus"/>Defines the booking status for the List of Bookings it will return.
+    /// </summary>
+    /// <param name="customers">List of Customers elegible for renting a car</param>
+    /// <param name="vehiclesForRent">List of IVehicles in vehicle-pool</param>
+    /// <param name="vehicleStatus">VehicleStatus for bookings</param>
+    /// <param name="numberOfBookings">Number of bookings it will return. If left at 0 it will return a random number between 0 and <paramref name="customers"/>.Count</param>
+    /// <returns></returns>
+    /// <exception cref="Exception">Throws an exception if it can't pick a car that's not already booked, after 8 trials</exception>
     public List<IBooking> GenerateIBookingsList(List<Customer> customers, List<IVehicle> vehiclesForRent, VehicleStatus vehicleStatus, int numberOfBookings = 0)
     {
         var rnd = new Random();
@@ -50,8 +56,8 @@ public sealed class DataFactory
         if (numberOfPersons < 1) throw new Exception($"numberOfPersons needs to have at least 1, had {numberOfPersons}");
 
         var rnd = new Random();
-        List<string> FirstNames = new List<string>() { "Margot", "Astrid", "Charles", "Sean", "Crow", "Welsh", "Tim", "Bob", "Clarence", "Eva", "Lena", "Thomas", "Kent", "Sam" };
-        List<string> LastNames = new List<string>() { "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon", "Smith", "Kimchi", "Clarkson" };
+        List<string> FirstNames = new List<string>() { "Margot", "Astrid", "Charles", "Sean", "Crow", "Welsh", "Tim", "Bob", "Clarence", "Eva", "Lena", "Thomas", "Kent", "Sam", "Jonas", "Rikard", "Kalle", "Frank", "Tina", "Alberg", "Robert", "Titti", "Hubertius" };
+        List<string> LastNames = new List<string>() { "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon", "Smith", "Kimchi", "Clarkson", "Edelblomberg", "Booker", "Crook", "Smoker", "Webber", "Ramsey" };
 
         List<IPerson> list = new List<IPerson>();
 
@@ -61,8 +67,8 @@ public sealed class DataFactory
             {
                 string firtName = FirstNames[rnd.Next(FirstNames.Count - 1)];
                 string lastName = LastNames[rnd.Next(LastNames.Count - 1)];
-                string SE_SSN = GenerateSE_SSN();
-                string SSN = GenerateSSN();
+                long SE_SSN = GenerateSE_SSN();
+                long SSN = GenerateSSN();
                 DateOnly date = GenerateDate(GeneratedDateVariants.RegistryDate);
                 var cus = new Customer(firtName, lastName, SSN, SE_SSN, date, customerId);
                 customerId++;
@@ -75,7 +81,7 @@ public sealed class DataFactory
         }
         catch
         {
-            throw new Exception("Whatdefuq");
+            throw new Exception("Unhandled exception");
         }
         return list;
     }
@@ -131,7 +137,7 @@ public sealed class DataFactory
     {
         var rnd = new Random();
         var vehicle = GetUnbookedVehicle(vehiclesForRent);
-        var customer = customers[rnd.Next(customers.Count - 1)];
+        var customer = TryGetAvailableCustomer(customers);
         var startDate = GenerateDate(GeneratedDateVariants.BookingsDate).ToDateTime(new TimeOnly());
         Booking newBooking = new Booking(vehicle, customer, startDate);
         switch (bookingStatus)
@@ -242,21 +248,26 @@ public sealed class DataFactory
         return sb.ToString();
     }
 
-    private string GenerateSE_SSN()
+    private long GenerateSE_SSN()
     {
         var rnd = new Random();
         StringBuilder sb = new StringBuilder();
         var date = GenerateDate(GeneratedDateVariants.DateOfBirth);
+        var month = date.Month.ToString("D2");
+        var day = date.Day.ToString("D2");
+        var digits = rnd.Next(1, 9999).ToString("D4");
         sb.Append(date.Year.ToString().Substring(2, 2));
-        sb.Append(date.Month);
-        sb.Append(date.Day);
-        sb.Append("-" + rnd.Next(1000, 9999));
-        return date.ToString();
+        sb.Append(month);
+        sb.Append(day);
+        sb.Append(digits);
+        var text = sb.ToString();
+        _ = long.TryParse(text, out long result);
+        return result;
     }
-    private string GenerateSSN()
+    private long GenerateSSN()
     {
         var rnd = new Random();
-        return "" + rnd.NextInt64(100000000, 999999999);
+        return rnd.NextInt64(100000000, 999999999);
     }
 
     private DateOnly GenerateDate(GeneratedDateVariants dateVariant)

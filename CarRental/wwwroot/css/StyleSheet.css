@@ -1,0 +1,21 @@
+﻿.text-white-80 {
+    --bs-text-opacity: 1;
+    color: rgba(255,255,255,.8) !important
+}
+
+.w-60 {
+    width: 60% !important
+}
+
+.w-80 {
+    width: 80% !important
+}
+
+.w-90 {
+    width: 90% !important
+}
+
+.custom-tooltip {
+    --bs-tooltip-bg: var(--bd-violet-bg);
+    --bs-tooltip-color: var(--bs-white);
+}

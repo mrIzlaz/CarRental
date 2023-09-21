@@ -35,18 +35,18 @@ public class CollectionData : IData
         try
         {
             var rnd = new Random();
-            var perList = producer.GenerateIPersonList(8);
+            var perList = producer.GenerateIPersonList(6);
             _persons.AddRange(perList);
 
-            var vehlist = producer.GenerateIVehicleList(14);
+            var vehlist = producer.GenerateIVehicleList(12);
             _vehicles.AddRange(vehlist);
 
             var customers = _persons.Where(x => x is Customer).Cast<Customer>().ToList();
             var cus = customers.GetRange(0, customers.Count);
             var veh = _vehicles.GetRange(0, _vehicles.Count);
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Booked, rnd.Next(3)));
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Available, rnd.Next(3)));
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Unavailable, rnd.Next(3)));
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Booked, rnd.Next(1, 3)));
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Available, rnd.Next(1, 2)));
+            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Unavailable, rnd.Next(2)));
 
         }
         catch (Exception ex)

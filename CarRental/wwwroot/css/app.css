@@ -99,18 +99,3 @@ a, .btn-link {
     .loading-progress-text:after {
         content: var(--blazor-load-percentage-text, "Loading");
     }
-.text-white-80 {
-    --bs-text-opacity: 1;
-    color: rgba(255,255,255,.8) !important
-}
-
-.w-60 {
-    width: 60% !important
-}
-.w-80 {
-    width: 80% !important
-}
-
-.w-90 {
-    width: 90% !important
-}
