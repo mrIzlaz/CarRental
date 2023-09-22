@@ -19,18 +19,18 @@
 <div class="d-flex">
     @*<div><button class="btn btn-primary" @onclick="ShowAvailable">Show Available</button> </div>*@
     <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked @onclick="ShowAll">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked @onclick="() => visibleVehicle = default">
         <label class="form-check-label" for="flexRadioDefault2">
             Show All
         </label>
     </div>
     <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="ShowBooked">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="() => visibleVehicle = VehicleStatus.Booked">
         <label class="form-check-label" for="flexRadioDefault1">
             Only Booked
         </label>
     </div>   <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="ShowAvailable">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="() => visibleVehicle = VehicleStatus.Available">
         <label class="form-check-label" for="flexRadioDefault1">
             Only Available
         </label>
@@ -65,7 +65,12 @@ else
                     <td>@vehicleInfo.GetKmCost() $/km</td>
                     <td>@vehicleInfo.GetVehicleType().ToString()</td>
                     <td>@vehicleInfo.GetDayCost() $/d</td>
-                    <td class="align-items-center"><span class="badge rounded-pill @(GetVehicleStatusTag(vehicleInfo.GetVehicleStatus()))">@vehicleInfo.GetVehicleStatus().ToString()</span></td>
+                    @*<td class="align-items-center"><span class="badge rounded-pill @(GetVehicleStatusTag(vehicleInfo.GetVehicleStatus()))">@vehicleInfo.GetVehicleStatus().ToString()</span></td>*@
+                    <td class="align-items-center">
+                        <span class="badge rounded-pill @(vehicleInfo.GetVehicleStatus() == VehicleStatus.Available ? "text-bg-success": vehicleInfo.GetVehicleStatus() == VehicleStatus.Booked ? "text-bg-danger" : "text-bg-dark")">
+                            @vehicleInfo.GetVehicleStatus().ToString()
+                        </span>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -105,7 +110,12 @@ else
                     <td>@bookingInfo.GetStartDate().ToShortDateString()</td>
                     <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetReturnDate()?.ToShortDateString())</td>
                     <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetTotalCost() + " $")</td>
-                    <td class="align-items-center"><span class="badge @GetBookingStatusTag(bookingInfo.GetBookingStatus()) ">@(GetBookingStatusLabel(bookingInfo.GetBookingStatus()))</span></td>
+                    @*<td class="align-items-center"><span class="badge @GetBookingStatusTag(bookingInfo.GetBookingStatus()) ">@(GetBookingStatusLabel(bookingInfo.GetBookingStatus()))</span></td>*@
+                    <td class="align-items-center">
+                        <span class="badge @(bookingInfo.GetBookingStatus() == VehicleStatus.Available ? "text-bg-success" :  bookingInfo.GetBookingStatus() == VehicleStatus.Booked ? "text-bg-danger":"text-bg-dark") ">
+                            @(bookingInfo.GetBookingStatus() == VehicleStatus.Available ? "Closed" : bookingInfo.GetBookingStatus() == VehicleStatus.Booked ? "Open" : "Unavailable")
+                        </span>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -145,56 +155,7 @@ else
 
 
 @code {
-
-
     string debugMessage = "";
-
     private VehicleStatus visibleVehicle = default;
-    public void ShowAvailable() => visibleVehicle = VehicleStatus.Available;
-    public void ShowBooked() => visibleVehicle = VehicleStatus.Booked;
-    public void ShowAll() => visibleVehicle = default;
-
-    public string GetVehicleStatusTag(VehicleStatus status)
-    {
-        switch (status)
-        {
-            case VehicleStatus.Booked:
-                return "text-bg-danger";
-            case VehicleStatus.Available:
-                return "text-bg-success";
-            case VehicleStatus.Unavailable:
-                return "text-bg-dark";
-        }
-        return "";
-    }
-
-    public string GetBookingStatusTag(VehicleStatus status)
-    {
-        switch (status)
-        {
-            case VehicleStatus.Booked:
-                return "text-bg-danger";
-            case VehicleStatus.Available:
-                return "text-bg-success";
-            case VehicleStatus.Unavailable:
-                return "text-bg-dark";
-        }
-        return "";
-    }
-
-    public string GetBookingStatusLabel(VehicleStatus status)
-    {
-
-        switch (status)
-        {
-            case VehicleStatus.Booked:
-                return "Open";
-            case VehicleStatus.Available:
-                return "Closed";
-            case VehicleStatus.Unavailable:
-                return "Maintenance";
-        }
-        return "";
-    }
 
 }
