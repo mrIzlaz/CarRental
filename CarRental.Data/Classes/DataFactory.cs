@@ -125,7 +125,7 @@ public sealed class DataFactory
     {
         var rnd = new Random();
         bool car = rnd.Next(10) <= 5;
-        VehicleManufacturer manu = car ? (VehicleManufacturer)rnd.Next(0, TotalCarManu) : motoMakers[rnd.Next(motoMakers.Count)];
+        VehicleManufacturer manu = car ? (VehicleManufacturer)rnd.Next(0, Manufacturer.GetTotalCarManufacturers()) : motoMakers[rnd.Next(motoMakers.Count)];
         VehicleTypes type = (VehicleTypes)rnd.Next(0, 3);
         int odo = rnd.Next(1000, 20000);
 
@@ -298,21 +298,6 @@ public sealed class DataFactory
     }
 
     #endregion
-
-    private const int TotalCarManu = 10;
-    enum VehicleManufacturer
-    {
-        Toyota,
-        BMW,
-        Honda,
-        Suzuki,
-        Volvo,
-        KIA,
-        Jeep,
-        Ford,
-        Škoda,
-        Rivian
-    }
 
     enum GeneratedDateVariants
     {

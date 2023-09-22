@@ -5,6 +5,7 @@
 @using CarRental.Business.Classes
 @using CarRental.Common.Enums
 @using CarRental.Common.Interfaces
+@using CarRental.Common.Extensions
 @inject BookingProcessor bp
 @inject HttpClient Http
 
@@ -55,6 +56,33 @@ else
                 <th>Status</th>
             </tr>
         </thead>
+    </table>
+    <div class="d-flex w-80">
+        <input type="text" class="form-control flex-row" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1">
+        <div class="input-group ">
+            <select class="form-select" id="inputGroupSelect01">
+                <option selected>Manufacturer</option>
+                @foreach (var type in VehicleExtension.GetManufacturersList())
+                {
+                    <option value=@type> @type.ToString()</option>
+                }
+            </select>
+        </div>
+        <input type="text" class="form-control flex-row" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1">
+        <input type="text" class="form-control flex-row" placeholder="Cost Km" aria-label="CostKm" aria-describedby="basic-addon1">
+        <div class="input-group ">
+            <select class="form-select" id="inputGroupSelect01">
+                <option selected>Vehicle Type</option>
+                @foreach (var type in VehicleExtension.GetVehicleTypesList())
+                {
+                    <option value=@type> @type.ToString()</option>
+                }
+            </select>
+        </div>
+        <input type="text" class="form-control flex-row" placeholder="Cost Day" aria-label="CostDay" aria-describedby="basic-addon1">
+        <div class="align-items-center"><span class="badge rounded-pill text-bg-danger ">Status Pending</span></div>
+    </div>
+    <table class="table table-striped table-hover w-80">
         <tbody>
             @foreach (var vehicleInfo in bp.GetVehicles(visibleVehicle))
             {
