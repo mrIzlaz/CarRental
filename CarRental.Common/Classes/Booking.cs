@@ -5,16 +5,14 @@ namespace CarRental.Common.Classes;
 
 public class Booking : IBooking
 {
-    const int DaysInAYear = 365;
-    const int MaxNotesLength = 400;
-    public bool IsActive { get; set; }
+    private const int DaysInAYear = 365;
+    private bool IsActive { get; set; }
     private Vehicle Vehicle { get; init; }
     private Customer Customer { get; init; }
-    public DateTime StartDate { get; init; }
-    public DateTime ReturnDate { get; set; }
+    private DateTime StartDate { get; init; }
+    private DateTime ReturnDate { get; set; }
     private int OdometerStart { get; set; }
     private double? TotalCost { get; set; }
-    private string? Notes { get; set; }
 
     public Booking(IVehicle vehicle, Customer customer, DateTime startDate)
     {
@@ -26,7 +24,9 @@ public class Booking : IBooking
         StartDate = startDate;
         ReturnDate = startDate;
     }
-    public Booking(IVehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate, VehicleStatus bookingStatus)
+
+    public Booking(IVehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate,
+        VehicleStatus bookingStatus)
     {
         IsActive = true;
         Vehicle = (Vehicle)vehicle;
@@ -35,27 +35,20 @@ public class Booking : IBooking
         OdometerStart = Vehicle.GetOdometer();
         StartDate = startDate;
         ReturnDate = returnDate;
-        SetTotalCost();
-    }
-    public Booking(IVehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate, VehicleStatus bookingStatus, string notes)
-    {
-        IsActive = true;
-        Vehicle = (Vehicle)vehicle;
-        Vehicle.UpdateBookingStatus(bookingStatus);
-        Customer = customer;
-        OdometerStart = Vehicle.GetOdometer();
-        StartDate = startDate;
-        ReturnDate = returnDate;
-        Notes = FormatString(notes);
         SetTotalCost();
     }
 
-    private string FormatString(string text)
+    public Booking(IVehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate,
+        VehicleStatus bookingStatus, string? notes)
     {
-        if (text == null)
-            return "";
-        var trunc = text.Substring(0, MaxNotesLength);
-        return trunc;
+        IsActive = true;
+        Vehicle = (Vehicle)vehicle;
+        Vehicle.UpdateBookingStatus(bookingStatus);
+        Customer = customer;
+        OdometerStart = Vehicle.GetOdometer();
+        StartDate = startDate;
+        ReturnDate = returnDate;
+        SetTotalCost();
     }
 
 
@@ -77,38 +70,25 @@ public class Booking : IBooking
         var dif = Vehicle.Odometer - OdometerStart;
         var years = ReturnDate.Year - StartDate.Year;
         var days = (ReturnDate.DayOfYear + (years * DaysInAYear) - StartDate.DayOfYear);
-        TotalCost = Math.Round((dif * Vehicle.kmCost) + (days * Vehicle.dayCost), 2);
+        TotalCost = Math.Round((dif * Vehicle.GetKmCost()) + (days * Vehicle.GetKmCost()), 2);
     }
 
     public bool TrySetOdometerReturn(int value)
     {
-
         var dif = value - OdometerStart;
-        if (dif < 0) { return false; }
-        else
-            Vehicle.Odometer = dif;
+        if (dif < 0) return false;
+        Vehicle.Odometer = dif;
         return true;
-
     }
+
     public VehicleStatus GetBookingStatus() => Vehicle.GetVehicleStatus();
-
     public string CustomerName() => Customer.GetFullInfo();
-    public int CustomerID() => Customer.CustomerId;
-
+    public int CustomerId() => Customer.CustomerId;
     public string LicensePlate() => Vehicle.GetLicencePlate();
-
     public int? GetOdometerReturn() => IsActive ? null : Vehicle.GetOdometer();
-
-
     public int GetOdometerStart() => OdometerStart;
-
     public DateTime? GetReturnDate() => ReturnDate;
-
     public DateTime GetStartDate() => StartDate;
-
     public double? GetTotalCost() => IsActive ? null : TotalCost;
-
     public bool IsBookingActive() => IsActive;
-
-    public string? GetNotes() => Notes;
 }

@@ -5,7 +5,7 @@
 @using CarRental.Business.Classes
 @using CarRental.Common.Enums
 @using CarRental.Common.Interfaces
-@inject BookingProcessor bp
+@inject BookingProcessor Bp
 @inject HttpClient Http
 
 <PageTitle>Car Rental</PageTitle>
@@ -15,25 +15,25 @@
 <h3>Vehicles</h3>
 <div class="d-flex">
     <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked @onclick="() => visibleVehicle = default">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked @onclick="() => _visibleVehicle = default">
         <label class="form-check-label" for="flexRadioDefault2">
             Show All
         </label>
     </div>
     <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="() => visibleVehicle = VehicleStatus.Booked">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="() => _visibleVehicle = VehicleStatus.Booked">
         <label class="form-check-label" for="flexRadioDefault1">
             Only Booked
         </label>
     </div>   <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="() => visibleVehicle = VehicleStatus.Available">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="() => _visibleVehicle = VehicleStatus.Available">
         <label class="form-check-label" for="flexRadioDefault1">
             Only Available
         </label>
     </div>
 </div>
 
-@if (bp == null)
+@if (Bp == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -52,7 +52,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var vehicleInfo in bp.GetVehicles(visibleVehicle))
+            @foreach (var vehicleInfo in Bp.GetVehicles(_visibleVehicle))
             {
                 <tr>
                     <td><strong>@vehicleInfo.GetLicencePlate()</strong></td>
@@ -75,7 +75,7 @@ else
 
 
 <h3>Bookings</h3>
-@if (bp == null)
+@if (Bp == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -95,7 +95,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var bookingInfo in bp.GetBookings())
+            @foreach (var bookingInfo in Bp.GetBookings())
             {
                 <tr>
                     <td><strong>@bookingInfo.LicensePlate()</strong></td>
@@ -117,7 +117,7 @@ else
     <br />
 }
 <h3>Customers</h3>
-@if (bp == null)
+@if (Bp == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -133,10 +133,10 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var customerInfo in bp.GetCustomers())
+            @foreach (var customerInfo in Bp.GetCustomers())
             {
                 <tr>
-                    <td><strong>@customerInfo.GetSecurityFormated(true)</strong></td>
+                    <td><strong>@customerInfo.GetSecurityNumber()</strong></td>
                     <td>@customerInfo.GetLastname()</td>
                     <td>@customerInfo.GetFirstname()</td>
                     <td>@customerInfo.RegistryDate.ToShortDateString()</td>
@@ -149,5 +149,5 @@ else
 
 
 @code {
-    private VehicleStatus visibleVehicle = default;
+    private VehicleStatus _visibleVehicle = default;
 }

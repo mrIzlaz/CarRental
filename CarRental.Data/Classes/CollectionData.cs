@@ -8,55 +8,43 @@ using CarRental.Common.Classes;
 
 public class CollectionData : IData
 {
-    DataFactory producer = new DataFactory();
-    readonly List<IPerson> _persons = new List<IPerson>();
-    readonly List<IVehicle> _vehicles = new List<IVehicle>();
-    readonly List<IBooking> _bookings = new List<IBooking>();
+    private readonly DataFactory _producer = new();
+    private readonly List<IPerson> _persons = new();
+    private readonly List<IVehicle> _vehicles = new();
+    private readonly List<IBooking> _bookings = new();
 
     public CollectionData() => SeedData();
 
-    public IEnumerable<IBooking> GetBookings() => _bookings;
+    public IEnumerable<IBooking> GetBookings() => _bookings.OrderByDescending(x => x.GetBookingStatus()).Reverse();
     public IEnumerable<IPerson> GetPersons() => _persons;
+
+
     public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = default)
     {
         return status == default ? _vehicles : _vehicles.Where(x => x.GetVehicleStatus() == status);
     }
 
     #region VG
+
     /*
         public IEnumerator<List<T>> Get();
         public IEnumerator<Generic<T>> Single();
         public void Add(<T>);
     */
+
     #endregion
 
-    void SeedData()
+    private void SeedData()
     {
         try
         {
-            var rnd = new Random();
-            var perList = producer.GenerateIPersonList(6);
-            _persons.AddRange(perList);
-
-            var vehlist = producer.GenerateIVehicleList(12);
-            _vehicles.AddRange(vehlist);
-
-            var customers = _persons.Where(x => x is Customer).Cast<Customer>().ToList();
-            var cus = customers.GetRange(0, customers.Count);
-            var veh = _vehicles.GetRange(0, _vehicles.Count);
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Booked, rnd.Next(1, 3)));
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Available, rnd.Next(1, 2)));
-            _bookings.AddRange(producer.GenerateIBookingsList(cus, veh, VehicleStatus.Unavailable, rnd.Next(2)));
-
+            _persons.AddRange(_producer.GetPersons());
+            _vehicles.AddRange(_producer.GetVehicles());
+            _bookings.AddRange(_producer.GetBookings());
         }
         catch (Exception ex)
         {
-            string mes = ex.Message;
+            var mes = ex.Message;
         }
-
-
-
-
     }
-
 }
