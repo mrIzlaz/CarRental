@@ -6,14 +6,14 @@
 @using CarRental.Common.Enums
 @using CarRental.Common.Interfaces
 @using CarRental.Common.Extensions
-@inject BookingProcessor bp
+@inject BookingProcessor Bp
 @inject HttpClient Http
 
 <PageTitle>Car Rental</PageTitle>
 
 <h1>Car Rental Assignment G</h1>
 
-<p>@debugMessage</p>
+<p>@_debugMessage</p>
 @*<button class="btn btn-primary" @onclick="IncrementCount">Increase!</button>*@
 
 <h3>Vehicles</h3>
@@ -38,7 +38,7 @@
     </div>
 </div>
 
-@if (bp == null)
+@if (Bp == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -84,7 +84,7 @@ else
     </div>
     <table class="table table-striped table-hover w-80">
         <tbody>
-            @foreach (var vehicleInfo in bp.GetVehicles(visibleVehicle))
+            @foreach (var vehicleInfo in Bp.GetVehicles(_visibleVehicle))
             {
                 <tr>
                     <td><strong>@vehicleInfo.GetLicencePlate()</strong></td>
@@ -103,7 +103,7 @@ else
 
 
 <h3>Bookings</h3>
-@if (bp == null)
+@if (Bp == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -123,7 +123,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var bookingInfo in bp.GetBookings())
+            @foreach (var bookingInfo in Bp.GetBookings())
             {
                 <tr>
                     <td><strong>@bookingInfo.LicensePlate()</strong></td>
@@ -141,7 +141,7 @@ else
     <br />
 }
 <h3>Customers</h3>
-@if (bp == null)
+@if (Bp == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -157,10 +157,10 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var customerInfo in bp.GetCustomers())
+            @foreach (var customerInfo in Bp.GetCustomers())
             {
                 <tr>
-                    <td><strong>@customerInfo.GetSecurityFormated(true)</strong></td>
+                    <td><strong>@customerInfo.GetSecurityFormat(true)</strong></td>
                     <td>@customerInfo.GetLastname()</td>
                     <td>@customerInfo.GetFirstname()</td>
                     <td>@customerInfo.RegistryDate.ToShortDateString()</td>
@@ -175,12 +175,12 @@ else
 @code {
 
 
-    string debugMessage = "";
+    string _debugMessage = "";
 
-    private VehicleStatus visibleVehicle = default;
-    public void ShowAvailable() => visibleVehicle = VehicleStatus.Available;
-    public void ShowBooked() => visibleVehicle = VehicleStatus.Booked;
-    public void ShowAll() => visibleVehicle = default;
+    private VehicleStatus _visibleVehicle = default;
+    public void ShowAvailable() => _visibleVehicle = VehicleStatus.Available;
+    public void ShowBooked() => _visibleVehicle = VehicleStatus.Booked;
+    public void ShowAll() => _visibleVehicle = default;
 
     public string GetVehicleStatusTag(VehicleStatus status)
     {

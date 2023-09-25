@@ -5,13 +5,13 @@ namespace CarRental.Common.Classes;
 
 public class Booking : IBooking
 {
-    const int DaysInAYear = 365;
-    const int MaxNotesLength = 400;
-    public bool IsActive { get; set; }
+    private const int DaysInAYear = 365;
+    private const int MaxNotesLength = 400;
+    private bool IsActive { get; set; }
     private Vehicle Vehicle { get; init; }
     private Customer Customer { get; init; }
-    public DateTime StartDate { get; init; }
-    public DateTime ReturnDate { get; set; }
+    private DateTime StartDate { get; init; }
+    private DateTime ReturnDate { get; set; }
     private int OdometerStart { get; set; }
     private double? TotalCost { get; set; }
     private string? Notes { get; set; }
@@ -37,7 +37,7 @@ public class Booking : IBooking
         ReturnDate = returnDate;
         SetTotalCost();
     }
-    public Booking(IVehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate, VehicleStatus bookingStatus, string notes)
+    public Booking(IVehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate, VehicleStatus bookingStatus, string? notes)
     {
         IsActive = true;
         Vehicle = (Vehicle)vehicle;
@@ -50,11 +50,11 @@ public class Booking : IBooking
         SetTotalCost();
     }
 
-    private string FormatString(string text)
+    private static string FormatString(string? text)
     {
         if (text == null)
             return "";
-        var trunc = text.Substring(0, MaxNotesLength);
+        var trunc = text[..MaxNotesLength];
         return trunc;
     }
 
@@ -77,7 +77,7 @@ public class Booking : IBooking
         var dif = Vehicle.Odometer - OdometerStart;
         var years = ReturnDate.Year - StartDate.Year;
         var days = (ReturnDate.DayOfYear + (years * DaysInAYear) - StartDate.DayOfYear);
-        TotalCost = Math.Round((dif * Vehicle.kmCost) + (days * Vehicle.dayCost), 2);
+        TotalCost = Math.Round((dif * Vehicle.GetKmCost()) + (days * Vehicle.GetDayCost()), 2);
     }
 
     public bool TrySetOdometerReturn(int value)
@@ -93,7 +93,7 @@ public class Booking : IBooking
     public VehicleStatus GetBookingStatus() => Vehicle.GetVehicleStatus();
 
     public string CustomerName() => Customer.GetFullInfo();
-    public int CustomerID() => Customer.CustomerId;
+    public int CustomerId() => Customer.CustomerId;
 
     public string LicensePlate() => Vehicle.GetLicencePlate();
 

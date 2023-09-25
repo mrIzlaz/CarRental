@@ -14,11 +14,11 @@ public static class Manufacturer
 public enum VehicleManufacturer
 {
     Toyota,
-    BMW,
+    Bmw,
     Honda,
     Suzuki,
     Volvo,
-    KIA,
+    Kia,
     Jeep,
     Ford,
     Škoda,

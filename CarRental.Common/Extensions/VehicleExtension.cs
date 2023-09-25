@@ -3,28 +3,28 @@ namespace CarRental.Common.Extensions;
 
 public static class VehicleExtension
 {
-    private static List<VehicleTypes> vehicleTypesList = new() {
+    private static List<VehicleTypes> _vehicleTypesList = new() {
         VehicleTypes.Sedan,
         VehicleTypes.Combi,
         VehicleTypes.Van,
         VehicleTypes.Motorcycle
     };
-    private static List<VehicleManufacturer> manufacturerList = new() {
+    private static List<VehicleManufacturer> _manufacturerList = new() {
         VehicleManufacturer.Toyota,
-        VehicleManufacturer.BMW,
+        VehicleManufacturer.Bmw,
         VehicleManufacturer.Honda,
         VehicleManufacturer.Suzuki,
         VehicleManufacturer.Volvo,
-        VehicleManufacturer.KIA,
+        VehicleManufacturer.Kia,
         VehicleManufacturer.Jeep,
         VehicleManufacturer.Ford,
         VehicleManufacturer.Škoda,
         VehicleManufacturer.Rivian
     };
 
-    public static List<VehicleTypes> GetVehicleTypesList() => vehicleTypesList;
+    public static List<VehicleTypes> GetVehicleTypesList() => _vehicleTypesList;
 
 
-    public static List<VehicleManufacturer> GetManufacturersList() => manufacturerList;
+    public static List<VehicleManufacturer> GetManufacturersList() => _manufacturerList;
 
 }

@@ -7,12 +7,12 @@ namespace CarRental.Data.Classes;
 
 public sealed class DataFactory
 {
-    private int customerId = 0;
-    private int carID = 0;
-    readonly char[] charData = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'X', 'Y', 'Z' };
+    private int _customerId = 0;
+    private int _carId = 0;
+    readonly char[] _charData = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'X', 'Y', 'Z' };
     private Dictionary<string, IVehicle> _carLib = new Dictionary<string, IVehicle>();
     private Dictionary<string, IBooking> _bookings = new Dictionary<string, IBooking>();
-    private List<VehicleManufacturer> motoMakers = new List<VehicleManufacturer>() { VehicleManufacturer.Toyota, VehicleManufacturer.BMW, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
+    private List<VehicleManufacturer> _motoMakers = new List<VehicleManufacturer>() { VehicleManufacturer.Toyota, VehicleManufacturer.Bmw, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
 
     /// <summary>
     /// Returns a generated List of IBookings from parameters. Verify there's enough entities in <paramref name="vehiclesForRent"/> for it to succeed.<br></br>
@@ -56,8 +56,8 @@ public sealed class DataFactory
         if (numberOfPersons < 1) throw new Exception($"numberOfPersons needs to have at least 1, had {numberOfPersons}");
 
         var rnd = new Random();
-        List<string> FirstNames = new List<string>() { "Margot", "Astrid", "Charles", "Sean", "Crow", "Welsh", "Tim", "Bob", "Clarence", "Eva", "Lena", "Thomas", "Kent", "Sam", "Jonas", "Rikard", "Kalle", "Frank", "Tina", "Alberg", "Robert", "Titti", "Hubertius" };
-        List<string> LastNames = new List<string>() { "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon", "Smith", "Kimchi", "Clarkson", "Edelblomberg", "Booker", "Crook", "Smoker", "Webber", "Ramsey" };
+        List<string> firstNames = new List<string>() { "Margot", "Astrid", "Charles", "Sean", "Crow", "Welsh", "Tim", "Bob", "Clarence", "Eva", "Lena", "Thomas", "Kent", "Sam", "Jonas", "Rikard", "Kalle", "Frank", "Tina", "Alberg", "Robert", "Titti", "Hubertius" };
+        List<string> lastNames = new List<string>() { "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon", "Smith", "Kimchi", "Clarkson", "Edelblomberg", "Booker", "Crook", "Smoker", "Webber", "Ramsey" };
 
         List<IPerson> list = new List<IPerson>();
 
@@ -65,13 +65,13 @@ public sealed class DataFactory
         {
             for (int i = 0; i < numberOfPersons; i++)
             {
-                string firtName = FirstNames[rnd.Next(FirstNames.Count - 1)];
-                string lastName = LastNames[rnd.Next(LastNames.Count - 1)];
-                long SE_SSN = GenerateSE_SSN();
-                long SSN = GenerateSSN();
+                string firtName = firstNames[rnd.Next(firstNames.Count - 1)];
+                string lastName = lastNames[rnd.Next(lastNames.Count - 1)];
+                long seSsn = GenerateSE_SSN();
+                long ssn = GenerateSsn();
                 DateOnly date = GenerateDate(GeneratedDateVariants.RegistryDate);
-                var cus = new Customer(firtName, lastName, SSN, SE_SSN, date, customerId);
-                customerId++;
+                var cus = new Customer(firtName, lastName, ssn, seSsn, date, _customerId);
+                _customerId++;
                 list.Add(cus);
             }
         }
@@ -94,10 +94,10 @@ public sealed class DataFactory
         int trials = numberOfVehicles * 2;
         foreach (var plate in plates)
         {
-            var vehicle = GetVehicle(plate, carID);
+            var vehicle = GetVehicle(plate, _carId);
             if (_carLib.TryAdd(plate, vehicle))
             {
-                carID++;
+                _carId++;
                 list.Add(vehicle);
             }
             else { fails++; }
@@ -106,10 +106,10 @@ public sealed class DataFactory
         {
             trials--;
             var plate = GetSingleLicencePlate();
-            var vehicle = GetVehicle(plate, carID);
+            var vehicle = GetVehicle(plate, _carId);
             if (_carLib.TryAdd(plate, vehicle))
             {
-                carID++;
+                _carId++;
                 fails--;
                 list.Add(vehicle);
             }
@@ -125,7 +125,7 @@ public sealed class DataFactory
     {
         var rnd = new Random();
         bool car = rnd.Next(10) <= 5;
-        VehicleManufacturer manu = car ? (VehicleManufacturer)rnd.Next(0, Manufacturer.GetTotalCarManufacturers()) : motoMakers[rnd.Next(motoMakers.Count)];
+        VehicleManufacturer manu = car ? (VehicleManufacturer)rnd.Next(0, Manufacturer.GetTotalCarManufacturers()) : _motoMakers[rnd.Next(_motoMakers.Count)];
         VehicleTypes type = (VehicleTypes)rnd.Next(0, 3);
         int odo = rnd.Next(1000, 20000);
 
@@ -162,7 +162,7 @@ public sealed class DataFactory
         var customer = customers[rnd.Next(customers.Count - 1)];
         foreach (var booking in _bookings)
         {
-            if (booking.Value.CustomerID() == customer.CustomerId)
+            if (booking.Value.CustomerId() == customer.CustomerId)
             {
                 customer = customers[rnd.Next(customers.Count - 1)]; //TODO: CHECK THIS CODE. IS NOT TESTED!!!!!!
             }
@@ -207,7 +207,7 @@ public sealed class DataFactory
             case VehicleManufacturer.Volvo:
                 cost = milageCost ? 1.25d : 210;
                 break;
-            case VehicleManufacturer.KIA:
+            case VehicleManufacturer.Kia:
                 cost = milageCost ? 0.88d : 200;
                 break;
             case VehicleManufacturer.Jeep:
@@ -225,7 +225,7 @@ public sealed class DataFactory
             case VehicleManufacturer.Rivian:
                 cost = milageCost ? 0.85d : 300;
                 break;
-            case VehicleManufacturer.BMW:
+            case VehicleManufacturer.Bmw:
                 cost = milageCost ? 2.1d : 230;
                 break;
             case VehicleManufacturer.Honda:
@@ -243,7 +243,7 @@ public sealed class DataFactory
         var rnd = new Random();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 3; i++)
-            sb.Append(charData[rnd.Next(0, charData.Length - 1)]);
+            sb.Append(_charData[rnd.Next(0, _charData.Length - 1)]);
         sb.Append(" " + String.Format("{0:000}", rnd.Next(0, 999)));
         return sb.ToString();
     }
@@ -264,7 +264,7 @@ public sealed class DataFactory
         _ = long.TryParse(text, out long result);
         return result;
     }
-    private long GenerateSSN()
+    private long GenerateSsn()
     {
         var rnd = new Random();
         return rnd.NextInt64(100000000, 999999999);
