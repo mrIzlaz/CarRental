@@ -8,5 +8,4 @@ public class Car : Vehicle
     {
     }
 
-    public override VehicleTypes GetVehicleType() => VehicleTypes;
 }

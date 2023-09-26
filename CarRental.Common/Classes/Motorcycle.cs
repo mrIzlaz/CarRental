@@ -10,12 +10,10 @@ public class Motorcycle : Vehicle
         Id = id;
         LicencePlate = licencePlate;
         Manufacturer = manufacturer;
-        VehicleTypes = VehicleTypes.Motorcycle;
+        VehicleType = VehicleTypes.Motorcycle;
         Odometer = odometer;
         DayCost = dayCost;
         KmCost = kmCost;
         VehicleStatus = VehicleStatus.Available;
     }
-
-    public override VehicleTypes GetVehicleType() => VehicleTypes;
 }

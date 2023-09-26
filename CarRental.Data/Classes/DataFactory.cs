@@ -9,8 +9,8 @@ public sealed class DataFactory
 {
     private static int NumberOfVehicleStatus => Enum.GetNames(typeof(VehicleStatus)).Length;
 
-    private int _customerId = 0;
-    private int _carId = 0;
+    private int _customerId;
+    private int _carId;
 
     private readonly char[] _charData =
     {
@@ -49,14 +49,15 @@ public sealed class DataFactory
         var rnd = new Random();
         var enumerable = customers.ToList();
         if (numberOfBookings <= 0) numberOfBookings = rnd.Next(enumerable.Count);
-  
+
         for (var i = 0; i < numberOfBookings; i++)
         {
             var trials = 8;
             do
             {
-                var newBooking = GetNewBooking(enumerable, vehiclesForRent, (VehicleStatus)rnd.Next(NumberOfVehicleStatus));
-                if (_bookings.TryAdd(newBooking.LicensePlate(), newBooking))
+                var typeOfBooking = (VehicleStatus)rnd.Next(0, NumberOfVehicleStatus);
+                var newBooking = GetNewBooking(enumerable, vehiclesForRent, typeOfBooking);
+                if (_bookings.TryAdd(newBooking.Vehicle.LicencePlate, newBooking))
                     break;
                 trials--;
             } while (trials >= 0);
@@ -85,7 +86,7 @@ public sealed class DataFactory
         var lastNames = new List<string>()
         {
             "Andersson", "Karlsson", "Rayden", "Russel", "Taylor", "Birdie", "Hitchcock", "Penn", "Bacon", "Smith",
-            "Kimchi", "Clarkson", "Edelblomberg", "Booker", "Crook", "Smoker", "Webber", "Ramsey"
+            "Kimi", "Clarkson", "Edelblomberg", "Booker", "Crook", "Smoker", "Webber", "Ramsey"
         };
 
         var list = new List<IPerson>();
@@ -105,7 +106,7 @@ public sealed class DataFactory
         }
         catch (ArgumentException e)
         {
-            throw e;
+            throw;
         }
         catch
         {
@@ -130,9 +131,7 @@ public sealed class DataFactory
                 list.Add(vehicle);
             }
             else
-            {
                 fails++;
-            }
         }
 
         while (fails > 0 && trials > 0)
@@ -182,12 +181,11 @@ public sealed class DataFactory
         {
             case VehicleStatus.Available:
                 newBooking.TryCloseBooking(GetReturnDate(startDate),
-                    newBooking.GetOdometerStart() + rnd.Next(100, 1200));
+                    newBooking.OdometerStart + rnd.Next(100, 1200));
                 return newBooking;
             case VehicleStatus.Booked:
                 return newBooking;
             case VehicleStatus.Unavailable:
-                const string note = "At repair shop til return";
                 return new Booking(vehicle, customer, startDate, GetReturnDate(startDate), bookingStatus);
             default:
                 return newBooking;
@@ -198,7 +196,7 @@ public sealed class DataFactory
     {
         var rnd = new Random();
         var customer = customers[rnd.Next(customers.Count - 1)];
-        foreach (var booking in _bookings.Where(booking => booking.Value.CustomerId() == customer.CustomerId))
+        foreach (var booking in _bookings.Where(booking => booking.Value.Customer.CustomerId == customer.CustomerId))
         {
             customer = customers[rnd.Next(customers.Count - 1)];
         }
@@ -210,16 +208,10 @@ public sealed class DataFactory
     {
         var rnd = new Random();
         var vehicle = vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)];
-        while (_bookings.ContainsKey(vehicle.GetLicencePlate()))
+        while (_bookings.ContainsKey(vehicle.LicencePlate))
             vehicle = vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)];
 
         return vehicle;
-    }
-
-    private IEnumerable<IBooking> GetBookings(VehicleStatus vehicleStatus)
-    {
-        return (from booking in _bookings where booking.Value.GetBookingStatus() == vehicleStatus select booking.Value)
-            .ToList();
     }
 
     private static DateTime GetReturnDate(DateTime startDate, bool resetToToday = true)
@@ -272,7 +264,8 @@ public sealed class DataFactory
         var date = dateVariant switch
         {
             GeneratedDateVariants.DateOfBirth => new DateOnly(rnd.Next(1940, 2003), rnd.Next(1, 12), rnd.Next(1, 31)),
-            GeneratedDateVariants.RegistryDate => new DateOnly(rnd.Next(2020, 2023), rnd.Next(1, 12), rnd.Next(1, 31)),
+            GeneratedDateVariants.RegistryDate => new DateOnly(rnd.Next(2020, 2023), rnd.Next(1, DateTime.Today.Month),
+                rnd.Next(1, DateTime.Today.Day)),
             GeneratedDateVariants.BookingsDate => new DateOnly(2023, DateTime.Now.Month, rnd.Next(1, DateTime.Now.Day)),
             _ => new DateOnly()
         };

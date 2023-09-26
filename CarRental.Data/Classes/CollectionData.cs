@@ -15,13 +15,13 @@ public class CollectionData : IData
 
     public CollectionData() => SeedData();
 
-    public IEnumerable<IBooking> GetBookings() => _bookings.OrderByDescending(x => x.GetBookingStatus()).Reverse();
+    public IEnumerable<IBooking> GetBookings() => _bookings.OrderByDescending(x => x.BookingStatus).Reverse();
     public IEnumerable<IPerson> GetPersons() => _persons;
 
 
     public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = default)
     {
-        return status == default ? _vehicles : _vehicles.Where(x => x.GetVehicleStatus() == status);
+        return status == default ? _vehicles : _vehicles.Where(x => x.VehicleStatus == status);
     }
 
     #region VG

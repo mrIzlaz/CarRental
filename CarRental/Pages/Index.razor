@@ -1,12 +1,7 @@
 ﻿@page "/"
-@using CarRental.Common.Classes;
-@using CarRental.Data.Interfaces
-@using CarRental.Data.Classes
 @using CarRental.Business.Classes
 @using CarRental.Common.Enums
-@using CarRental.Common.Interfaces
 @inject BookingProcessor Bp
-@inject HttpClient Http
 
 <PageTitle>Car Rental</PageTitle>
 
@@ -15,19 +10,19 @@
 <h3>Vehicles</h3>
 <div class="d-flex">
     <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked @onclick="() => _visibleVehicle = default">
-        <label class="form-check-label" for="flexRadioDefault2">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked @onclick="() => _visibleVehicle = default">
+        <label class="form-check-label" for="flexRadioDefault1">
             Show All
         </label>
     </div>
     <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="() => _visibleVehicle = VehicleStatus.Booked">
-        <label class="form-check-label" for="flexRadioDefault1">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" @onclick="() => _visibleVehicle = VehicleStatus.Booked">
+        <label class="form-check-label" for="flexRadioDefault2">
             Only Booked
         </label>
     </div>   <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" @onclick="() => _visibleVehicle = VehicleStatus.Available">
-        <label class="form-check-label" for="flexRadioDefault1">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" @onclick="() => _visibleVehicle = VehicleStatus.Available">
+        <label class="form-check-label" for="flexRadioDefault3">
             Only Available
         </label>
     </div>
@@ -55,15 +50,15 @@ else
             @foreach (var vehicleInfo in Bp.GetVehicles(_visibleVehicle))
             {
                 <tr>
-                    <td><strong>@vehicleInfo.GetLicencePlate()</strong></td>
-                    <td>@vehicleInfo.GetManufacturer()</td>
-                    <td>@vehicleInfo.GetOdometer()</td>
-                    <td>@vehicleInfo.GetKmCost() $/km</td>
-                    <td>@vehicleInfo.GetVehicleType().ToString()</td>
-                    <td>@vehicleInfo.GetDayCost() $/d</td>
+                    <td><strong>@vehicleInfo.LicencePlate</strong></td>
+                    <td>@vehicleInfo.Manufacturer</td>
+                    <td>@vehicleInfo.Odometer</td>
+                    <td>@vehicleInfo.KmCost $/km</td>
+                    <td>@vehicleInfo.VehicleType.ToString()</td>
+                    <td>@vehicleInfo.DayCost $/d</td>
                     <td class="align-items-center">
-                        <span class="badge rounded-pill @(vehicleInfo.GetVehicleStatus() == VehicleStatus.Available ? "text-bg-success": vehicleInfo.GetVehicleStatus() == VehicleStatus.Booked ? "text-bg-danger" : "text-bg-dark")">
-                            @vehicleInfo.GetVehicleStatus().ToString()
+                        <span class="badge rounded-pill @(vehicleInfo.VehicleStatus == VehicleStatus.Available ? "text-bg-success": vehicleInfo.VehicleStatus == VehicleStatus.Booked ? "text-bg-danger" : "text-bg-dark")">
+                            @vehicleInfo.VehicleStatus.ToString()
                         </span>
                     </td>
                 </tr>
@@ -98,16 +93,26 @@ else
             @foreach (var bookingInfo in Bp.GetBookings())
             {
                 <tr>
-                    <td><strong>@bookingInfo.LicensePlate()</strong></td>
-                    <td>@bookingInfo.CustomerName()</td>
-                    <td>@bookingInfo.GetOdometerStart()</td>
-                    <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetOdometerReturn()) </td>
-                    <td>@bookingInfo.GetStartDate().ToShortDateString()</td>
-                    <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetReturnDate()?.ToShortDateString())</td>
-                    <td>@(bookingInfo.IsBookingActive() ? "" : @bookingInfo.GetTotalCost() + " $")</td>
+                    <td><strong>@bookingInfo.Vehicle.LicencePlate</strong></td>
+                    <td>@bookingInfo.Customer.GetFullInfo()</td>
+                    <td>@bookingInfo.OdometerStart</td>
+                    <td>@(bookingInfo.IsActive ? "" : @bookingInfo.OdometerReturn) </td>
+                    <td>@bookingInfo.StartDate.ToShortDateString()</td>
+                    <td>@(bookingInfo.IsActive ? "" : @bookingInfo.ReturnDate.ToShortDateString())</td>
+                    <td>@(bookingInfo.IsActive ? "" : @bookingInfo.TotalCost + " $")</td>
                     <td class="align-items-center">
-                        <span class="badge @(bookingInfo.GetBookingStatus() == VehicleStatus.Available ? "text-bg-success" :  bookingInfo.GetBookingStatus() == VehicleStatus.Booked ? "text-bg-danger":"text-bg-dark") ">
-                            @(bookingInfo.GetBookingStatus() == VehicleStatus.Available ? "Closed" : bookingInfo.GetBookingStatus() == VehicleStatus.Booked ? "Open" : "Unavailable")
+                        <span class="badge @(bookingInfo.BookingStatus switch
+                                           {
+                                               VehicleStatus.Available => "text-bg-success",
+                                               VehicleStatus.Booked => "text-bg-danger",
+                                               _ => "text-bg-dark"
+                                               }) ">
+                            @(bookingInfo.BookingStatus switch
+                            {
+                                VehicleStatus.Available => "Closed",
+                                VehicleStatus.Booked => "Open",
+                                _ => "Unavailable"
+                                })
                         </span>
                     </td>
                 </tr>
@@ -149,5 +154,5 @@ else
 
 
 @code {
-    private VehicleStatus _visibleVehicle = default;
+    private VehicleStatus _visibleVehicle;
 }
