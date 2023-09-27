@@ -17,9 +17,9 @@ public class BookingProcessor
     }
     public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = default)
     {
-        var list = status == default ? _db.GetVehicles().ToList() : _db.GetVehicles().Where(x => x.GetVehicleStatus() == status).ToList();
-        var orderedlist = list.OrderByDescending(x => x.GetVehicleStatus() == VehicleStatus.Available).ToList();
-        return orderedlist.GetRange(0, orderedlist.Count);
+        var list = status == default ? _db.GetVehicles().ToList() : _db.GetVehicles().Where(x => x.VehicleStatus == status).ToList();
+        var vehicles = list.OrderByDescending(x => x.VehicleStatus == VehicleStatus.Available).ToList();
+        return vehicles.GetRange(0, vehicles.Count);
     }
 
     public IEnumerable<IBooking> GetBookings()
