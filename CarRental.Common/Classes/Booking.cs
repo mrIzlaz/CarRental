@@ -16,12 +16,12 @@ public class Booking : IBooking
     public double? TotalCost { get; set; }
     public VehicleStatus BookingStatus { get; set; }
 
-    public Booking(IVehicle vehicle, Customer customer, DateTime startDate) : this(vehicle, customer, startDate,
+    public Booking(Vehicle vehicle, Customer customer, DateTime startDate) : this(vehicle, customer, startDate,
         startDate, VehicleStatus.Booked)
     {
     }
 
-    public Booking(IVehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate,
+    public Booking(Vehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate,
         VehicleStatus bookingStatus)
     {
         IsActive = true;

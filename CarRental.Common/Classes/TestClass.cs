@@ -10,7 +10,6 @@ namespace CarRental.Common.Classes;
 public class TestClass
 
 {
-
     private HttpClient _http;
     public string Message { get; private set; } = string.Empty;
     public VehicleData[] Vehicles;
@@ -29,13 +28,7 @@ public class TestClass
         }
         return les;
     }
-
-
-
-
-
-
-
+    
 }
 public class VehicleData
 {

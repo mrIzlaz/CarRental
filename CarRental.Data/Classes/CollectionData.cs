@@ -10,7 +10,7 @@ public class CollectionData : IData
 {
     private readonly DataFactory _producer = new();
     private readonly List<IPerson> _persons = new();
-    private readonly List<IVehicle> _vehicles = new();
+    private readonly List<Vehicle> _vehicles = new();
     private readonly List<IBooking> _bookings = new();
 
     public CollectionData() => SeedData();
@@ -19,7 +19,7 @@ public class CollectionData : IData
     public IEnumerable<IPerson> GetPersons() => _persons;
 
 
-    public IEnumerable<IVehicle> GetVehicles(VehicleStatus status = default)
+    public IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default)
     {
         return status == default ? _vehicles : _vehicles.Where(x => x.VehicleStatus == status);
     }

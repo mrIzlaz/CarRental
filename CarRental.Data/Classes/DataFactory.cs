@@ -18,13 +18,13 @@ public sealed class DataFactory
         'Y', 'Z'
     };
 
-    private readonly Dictionary<string, IVehicle> _carLib = new();
+    private readonly Dictionary<string, Vehicle> _carLib = new();
     private readonly Dictionary<string, IBooking> _bookings = new();
 
     private readonly List<VehicleManufacturer> _motoMakers = new()
         { VehicleManufacturer.Toyota, VehicleManufacturer.Bmw, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
 
-    private readonly IEnumerable<IVehicle> _iVehicles;
+    private readonly IEnumerable<Vehicle> _iVehicles;
     private readonly IEnumerable<IPerson> _iPersons;
     private readonly IEnumerable<IBooking> _iBookings;
 
@@ -35,7 +35,7 @@ public sealed class DataFactory
         _iBookings = GenerateIBookingsList(_iPersons.Cast<Customer>().ToList(), _iVehicles.ToList(), bookingCount);
     }
 
-    public IEnumerable<IVehicle> GetVehicles() => _iVehicles;
+    public IEnumerable<Vehicle> GetVehicles() => _iVehicles;
     public IEnumerable<IPerson> GetPersons() => _iPersons;
     public IEnumerable<IBooking> GetBookings() => _iBookings;
 
@@ -43,7 +43,7 @@ public sealed class DataFactory
     #region ListGenerators
 
     private IEnumerable<IBooking> GenerateIBookingsList(IReadOnlyList<Customer> customers,
-        IReadOnlyList<IVehicle> vehiclesForRent,
+        IReadOnlyList<Vehicle> vehiclesForRent,
         int numberOfBookings = 0)
     {
         var rnd = new Random();
@@ -116,9 +116,9 @@ public sealed class DataFactory
         return list;
     }
 
-    private IEnumerable<IVehicle> GenerateIVehicleList(int numberOfVehicles = 8)
+    private IEnumerable<Vehicle> GenerateIVehicleList(int numberOfVehicles = 8)
     {
-        var list = new List<IVehicle>();
+        var list = new List<Vehicle>();
         var plates = GetLicencePlateList(numberOfVehicles);
         var fails = 0;
         var trials = numberOfVehicles * 2;
@@ -152,7 +152,7 @@ public sealed class DataFactory
 
     #region Helper Methods
 
-    private IVehicle GetVehicle(string licencePlate, int id)
+    private Vehicle GetVehicle(string licencePlate, int id)
     {
         var rnd = new Random();
         var car = rnd.Next(10) <= 5;
@@ -160,7 +160,7 @@ public sealed class DataFactory
         var type = (VehicleTypes)rnd.Next(0, 3);
         var odo = rnd.Next(1000, 20000);
 
-        IVehicle vehicle = car
+        Vehicle vehicle = car
             ? new Car(id, licencePlate, manu.ToString(), odo, type, (int)GetVehicleCost(manu),
                 GetVehicleCost(manu, true))
             : new Motorcycle(id, licencePlate, manu.ToString(), odo, (int)GetVehicleCost(manu),
@@ -168,7 +168,7 @@ public sealed class DataFactory
         return vehicle;
     }
 
-    private Booking GetNewBooking(IEnumerable<IPerson> customers, IReadOnlyList<IVehicle> vehiclesForRent,
+    private Booking GetNewBooking(IEnumerable<IPerson> customers, IReadOnlyList<Vehicle> vehiclesForRent,
         VehicleStatus bookingStatus)
     {
         var customerList = customers.Cast<Customer>().ToList();
@@ -204,7 +204,7 @@ public sealed class DataFactory
         return customer;
     }
 
-    private IVehicle GetUnbookedVehicle(IReadOnlyList<IVehicle> vehiclesForRent)
+    private Vehicle GetUnbookedVehicle(IReadOnlyList<Vehicle> vehiclesForRent)
     {
         var rnd = new Random();
         var vehicle = vehiclesForRent[rnd.Next(vehiclesForRent.Count - 1)];

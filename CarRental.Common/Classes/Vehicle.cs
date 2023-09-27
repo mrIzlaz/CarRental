@@ -3,7 +3,7 @@ using CarRental.Common.Interfaces;
 
 namespace CarRental.Common.Classes;
 
-public abstract class Vehicle : IVehicle
+public abstract class Vehicle 
 {
     public int Id { get; init; }
     public string LicencePlate { get; init; }
