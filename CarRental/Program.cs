@@ -9,5 +9,5 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton(_ => new BookingProcessor(new CollectionData()));
-builder.Services.AddScoped(_ => new UserInputs());
+builder.Services.AddScoped<UserInputs>();
 await builder.Build().RunAsync();

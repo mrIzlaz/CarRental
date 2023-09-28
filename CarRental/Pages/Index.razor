@@ -14,14 +14,9 @@
     {
         <div class="container-md @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Message: @message</div>
     }
-    if (UserInput.DataValues.Count != 0)
-    {
-        <p>DataValues</p>
-        foreach (var value in UserInput.DataValues)
-        {
-            <div class="container-sm @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">@value</div>
-        }
-    }
+
+    <p>DataValues</p>
+    <div class="container-sm @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">@UserInput.DataValues</div>
 }
 <h3>Vehicles</h3>
 <div class="d-flex">
@@ -62,6 +57,7 @@ else
             <th>Cost Km</th>
             <th>Vehicle Type</th>
             <th>$ Day</th>
+            <th>Action</th>
             <th>Status</th>
         </tr>
         </thead>
@@ -80,7 +76,7 @@ else
                     </select>
                 </div>
             </td>
-            <td>
+            <td class="w-05">
                 <input type="number" class="form-control flex-row" min="0" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1" @bind="UserInput.Odometer">
             </td>
             <td>
@@ -102,10 +98,14 @@ else
             </td>
             <td>
                 <div class="align-items-center">
+                    <button class="btn btn-outline-success" @onclick="UserInput.TryAddNewCar">Add</button>
+                </div>
+            </td>
+            <td>
+                <div class="align-items-center">
                     <span class="badge rounded-pill text-bg-danger ">Status Pending</span>
                 </div>
             </td>
-
         </tr>
         <tbody>
         @foreach (var vehicleInfo in Bp.GetVehicles(UserInput.VisibleVehicle))
@@ -119,6 +119,28 @@ else
                 <td>@vehicleInfo.KmCost $/km</td>
                 <td>@vehicleInfo.VehicleType.ToString()</td>
                 <td>@vehicleInfo.DayCost $/d</td>
+                <td>
+                    @if (vehicleInfo.VehicleStatus == VehicleStatus.Available)
+                    {
+                        <div class="input-group">
+                            <select class="form-select" id="inputGroupSelect03" @onchange="UserInput.TryRent">
+                                <option selected>Client</option>
+                                @foreach (var type in Bp.GetCustomers())
+                                {
+                                    <option value=@type> @type.FirstName @type.LastName</option>
+                                }
+                            </select>
+                            <button class="btn btn-outline-primary">Rent</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="input-group">
+                            <input type="number" class="form-control flex-row" min="0" placeholder="Distance" aria-label="Dist" aria-describedby="basic-addon1" @bind="UserInput.Distance">
+                            <button class="btn btn-outline-primary">Return</button>
+                        </div>
+                    }
+                </td>
                 <td class="align-items-center">
                     <span class="badge rounded-pill @(vehicleInfo.VehicleStatus == VehicleStatus.Available ? "text-bg-success" : vehicleInfo.VehicleStatus == VehicleStatus.Booked ? "text-bg-danger" : "text-bg-dark")">
                         @vehicleInfo.VehicleStatus.ToString()

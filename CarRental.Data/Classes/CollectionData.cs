@@ -16,11 +16,29 @@ public class CollectionData : IData
     public CollectionData() => SeedData();
 
     public IEnumerable<IBooking> GetBookings() => _bookings.OrderByDescending(x => x.BookingStatus).Reverse();
+
     public IEnumerable<IPerson> GetPersons() => _persons;
+
     public IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default)
     {
         return status == default ? _vehicles : _vehicles.Where(x => x.VehicleStatus == status);
     }
+
+    public void Add(Vehicle vehicle)
+    {
+        _vehicles.Add(vehicle);
+    }
+
+    public void Add(Customer customer)
+    {
+        _persons.Add(customer);
+    }
+
+    public void Add(Booking booking)
+    {
+        _bookings.Add(booking);
+    }
+
 
     #region VG
 

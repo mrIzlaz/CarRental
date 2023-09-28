@@ -15,7 +15,8 @@
     width: 90% !important
 }
 
-.custom-tooltip {
-    --bs-tooltip-bg: var(--bd-violet-bg);
-    --bs-tooltip-color: var(--bs-white);
+.w-10{
+    width: 10% !important
+}.w-05{
+    width: 5% !important
 }

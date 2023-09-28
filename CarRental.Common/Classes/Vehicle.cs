@@ -33,5 +33,4 @@ public abstract class Vehicle
         KmCost = kmCost;
     }
 
-
 }

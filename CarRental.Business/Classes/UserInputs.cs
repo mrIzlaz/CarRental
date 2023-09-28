@@ -1,21 +1,32 @@
 ﻿namespace CarRental.Business.Classes;
+
 using Microsoft.AspNetCore.Components;
 using Common.Enums;
 using System.Text.RegularExpressions;
-using Common.Extensions;
+using CarRental.Common.Extensions;
 
 public partial class UserInputs
 {
+    private readonly BookingProcessor _bp;
+
     public bool IsInputValid = true;
     public readonly List<string> InputFeedbackMessages = new();
-    public readonly List<string> DataValues = new();
+    public string DataValues = string.Empty;
     public string LicensePlate { get; set; } = string.Empty;
-    private VehicleManufacturer Manufacturer { get; set; }
+    public VehicleManufacturer VehManufacturer { get; set; }
     public int? Odometer { get; set; }
     public double? CostKm { get; set; }
-    private VehicleType VehicleType { get; set; }
+    public VehicleType? VehType { get; set; }
     public int? CostDay { get; set; }
     public VehicleStatus VisibleVehicle { get; set; }
+
+    public int? Distance { get; set; }
+    public UserInputs(BookingProcessor bp) => _bp = bp;
+
+    public bool ValidVehicle { get; private set; }
+    public bool ValidCustomer { get; private set; }
+    public bool ValidBooking { get; private set; }
+
     public void TryAddNewCar()
     {
         ClearFeedbackMessage();
@@ -40,12 +51,18 @@ public partial class UserInputs
         if (InputFeedbackMessages.Count != 0) return;
 
         InputFeedbackMessages.Add("All Data is valid");
-        IsInputValid = true;
+        ValidVehicle = true;
+        _bp.Add(this);
+        ClearVehicleData();
+    }
+
+    public void TryRent()
+    {
     }
 
     private void ParseLicensePlate()
     {
-        DataValues.Add($"License plate: {LicensePlate}");
+        DataValues += $"License plate: {LicensePlate} ";
         var rx = MyRegex(); //^[A-Z]{3} ?[0-9]{2}[A-z0-9]$
         if (!rx.IsMatch(LicensePlate))
             throw new ArgumentException("Not a valid Swedish License Plate");
@@ -53,6 +70,7 @@ public partial class UserInputs
 
     private void ParseOdometer()
     {
+        DataValues += $"Odometer: {Odometer} ";
         if (Odometer is not (null or <= 0)) return;
         Odometer = null;
         throw new ArgumentException("Odometer Value incorrect");
@@ -60,14 +78,14 @@ public partial class UserInputs
 
     private void ParseManufacturer()
     {
-        DataValues.Add($"Manufacturer: {Manufacturer.ToString()}");
-        if (Manufacturer == default)
+        DataValues += $"Manufacturer: {VehManufacturer.ToString()} ";
+        if (VehManufacturer == default)
             throw new ArgumentException("Please select a Manufacturer");
     }
 
     private void ParseCostKm()
     {
-        DataValues.Add($"CostKM: {CostKm}");
+        DataValues += $"CostKM: {CostKm} ";
         if (CostKm is not (null or <= 0)) return;
         CostKm = null;
         throw new ArgumentException("CostKM Value incorrect");
@@ -75,15 +93,16 @@ public partial class UserInputs
 
     private void ParseVehicleType()
     {
-        DataValues.Add($"VehicleType: {VehicleType.ToString()}");
-        if (VehicleType != VehicleType.Motorcycle || Manufacturer.IsMotoMaker()) return;
-        Manufacturer = default;
-        throw new ArgumentException($"{Manufacturer.ToString()} does not make motorcycles");
+        DataValues += $"VehicleType: {VehType.ToString()} ";
+        if (VehType != VehicleType.Motorcycle || VehManufacturer.IsMotoMaker()) return;
+        VehManufacturer = default;
+
+        throw new ArgumentException($"{VehManufacturer.ToString()} does not make motorcycles");
     }
 
     private void ParseCostDay()
     {
-        DataValues.Add($"Cost Day: {CostDay}");
+        DataValues += $"Cost Day: {CostDay} ";
         if (CostDay is not (null or <= 0)) return;
         CostDay = null;
         throw new ArgumentException("Cost Day Value incorrect");
@@ -93,20 +112,31 @@ public partial class UserInputs
     {
         if (e.Value is null) return;
         Enum.TryParse(e.Value.ToString(), out VehicleType type);
-        VehicleType = type;
+        this.VehType = type;
     }
 
     public void SelectedManufacturerChanged(ChangeEventArgs e)
     {
         if (e.Value is null) return;
         Enum.TryParse(e.Value.ToString(), out VehicleManufacturer manufacturer);
-        Manufacturer = manufacturer;
+        VehManufacturer = manufacturer;
+    }
+
+    private void ClearVehicleData()
+    {
+    LicensePlate = string.Empty;
+     VehManufacturer  = default;
+    Odometer  = null;
+   CostKm = null;
+    VehType = null;
+    CostDay = null;
+    VisibleVehicle = default;
     }
 
     private void ClearFeedbackMessage()
     {
         InputFeedbackMessages.Clear();
-        DataValues.Clear();
+        DataValues = string.Empty;
         IsInputValid = false;
     }
 
