@@ -13,4 +13,10 @@ public interface IData
 
     IEnumerable<IBooking> GetBookings();
 
+    public string[] VehicleStatusNames => Enum.GetNames(typeof(VehicleStatus));
+    public IEnumerable<string> VehicleTypeNames => Enum.GetNames(typeof(VehicleType));
+    public IEnumerable<string> VehicleManufacturer => Enum.GetNames(typeof(VehicleManufacturer));
+    public VehicleType GetVehicleType(string name) => (VehicleType)Enum.Parse(typeof(VehicleType), name);
+
 }
+ 

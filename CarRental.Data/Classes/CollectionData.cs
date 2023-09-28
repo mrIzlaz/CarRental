@@ -17,8 +17,6 @@ public class CollectionData : IData
 
     public IEnumerable<IBooking> GetBookings() => _bookings.OrderByDescending(x => x.BookingStatus).Reverse();
     public IEnumerable<IPerson> GetPersons() => _persons;
-
-
     public IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default)
     {
         return status == default ? _vehicles : _vehicles.Where(x => x.VehicleStatus == status);

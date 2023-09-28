@@ -2,8 +2,8 @@
 
 public interface IPerson
 {
-    public string GetSecurityNumber();
-    public string GetFirstname();
-    public string GetLastname();
-    public string GetFullInfo();
+    public string SecurityNumber { get; init; }
+    public string FirstName { get; init; }
+    public string LastName { get; init; }
+    public string FullInfo { get; }
 }

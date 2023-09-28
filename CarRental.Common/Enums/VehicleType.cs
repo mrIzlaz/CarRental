@@ -1,6 +1,6 @@
 ﻿namespace CarRental.Common.Enums;
 
-public enum VehicleTypes
+public enum VehicleType
 {
     Sedan,
     Combi,

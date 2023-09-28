@@ -21,8 +21,6 @@ public sealed class DataFactory
     private readonly Dictionary<string, Vehicle> _carLib = new();
     private readonly Dictionary<string, IBooking> _bookings = new();
 
-    private readonly List<VehicleManufacturer> _motoMakers = new()
-        { VehicleManufacturer.Toyota, VehicleManufacturer.Bmw, VehicleManufacturer.Honda, VehicleManufacturer.Suzuki };
 
     private readonly IEnumerable<Vehicle> _iVehicles;
     private readonly IEnumerable<IPerson> _iPersons;
@@ -104,7 +102,7 @@ public sealed class DataFactory
                 list.Add(cus);
             }
         }
-        catch (ArgumentException e)
+        catch (ArgumentException)
         {
             throw;
         }
@@ -152,12 +150,14 @@ public sealed class DataFactory
 
     #region Helper Methods
 
-    private Vehicle GetVehicle(string licencePlate, int id)
+    private static Vehicle GetVehicle(string licencePlate, int id)
     {
         var rnd = new Random();
         var car = rnd.Next(10) <= 5;
-        var manu = car ? (VehicleManufacturer)rnd.Next(0, TotalCarManu) : _motoMakers[rnd.Next(_motoMakers.Count)];
-        var type = (VehicleTypes)rnd.Next(0, 3);
+        var manu = car
+            ? (VehicleManufacturer)rnd.Next(0, TotalCarManu)
+            : Manufacturer.MotoMakers[rnd.Next(Manufacturer.MotoMakers.Count)];
+        var type = (VehicleType)rnd.Next(0, 3);
         var odo = rnd.Next(1000, 20000);
 
         Vehicle vehicle = car
@@ -282,20 +282,6 @@ public sealed class DataFactory
     #endregion
 
     private static int TotalCarManu => Enum.GetNames(typeof(VehicleManufacturer)).Length;
-
-    private enum VehicleManufacturer
-    {
-        Toyota,
-        Bmw,
-        Honda,
-        Suzuki,
-        Volvo,
-        Kia,
-        Jeep,
-        Ford,
-        Škoda,
-        Rivian
-    }
 
     private enum GeneratedDateVariants
     {

@@ -2,26 +2,43 @@
 @using CarRental.Business.Classes
 @using CarRental.Common.Enums
 @inject BookingProcessor Bp
+@inject UserInputs UserInput;
 
 <PageTitle>Car Rental</PageTitle>
 
 <h1>Car Rental Assignment G</h1>
-
+<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="UserInput.TryAddNewCar">Try Parse Data Value</button>
+@if (UserInput.InputFeedbackMessages.Count != 0)
+{
+    foreach (var message in UserInput.InputFeedbackMessages)
+    {
+        <div class="container-md @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Message: @message</div>
+    }
+    if (UserInput.DataValues.Count != 0)
+    {
+        <p>DataValues</p>
+        foreach (var value in UserInput.DataValues)
+        {
+            <div class="container-sm @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">@value</div>
+        }
+    }
+}
 <h3>Vehicles</h3>
 <div class="d-flex">
     <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked @onclick="() => _visibleVehicle = default">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked @onclick="() => UserInput.VisibleVehicle = default">
         <label class="form-check-label" for="flexRadioDefault1">
             Show All
         </label>
     </div>
     <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" @onclick="() => _visibleVehicle = VehicleStatus.Booked">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" @onclick="() => UserInput.VisibleVehicle = VehicleStatus.Booked">
         <label class="form-check-label" for="flexRadioDefault2">
             Only Booked
         </label>
-    </div>   <div class="form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" @onclick="() => _visibleVehicle = VehicleStatus.Available">
+    </div>
+    <div class="form-check-inline">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" @onclick="() => UserInput.VisibleVehicle = VehicleStatus.Available">
         <label class="form-check-label" for="flexRadioDefault3">
             Only Available
         </label>
@@ -30,129 +47,183 @@
 
 @if (Bp == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
     <table class="table table-striped table-hover w-80">
         <thead>
-            <tr class="align-items-baseline">
-                <th>RegNo.</th>
-                <th>Make</th>
-                <th>Odometer</th>
-                <th>Cost Km</th>
-                <th>Vehicle Type</th>
-                <th>$ Day</th>
-                <th>Status</th>
-            </tr>
+        <tr class="align-items-baseline">
+            <th>RegNo.</th>
+            <th>Make</th>
+            <th>Odometer</th>
+            <th>Cost Km</th>
+            <th>Vehicle Type</th>
+            <th>$ Day</th>
+            <th>Status</th>
+        </tr>
         </thead>
+        <tr>
+            <td>
+                <input type="text" class="form-control flex-row" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate">
+            </td>
+            <td>
+                <div class="input-group">
+                    <select class="form-select" id="inputGroupSelect01" @onchange="UserInput.SelectedManufacturerChanged">
+                        <option selected>Manufacturer</option>
+                        @foreach (var type in Bp.VehicleManufacturer)
+                        {
+                            <option value=@type> @type</option>
+                        }
+                    </select>
+                </div>
+            </td>
+            <td>
+                <input type="number" class="form-control flex-row" min="0" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1" @bind="UserInput.Odometer">
+            </td>
+            <td>
+                <input type="number" class="form-control flex-row" min="0.2" max="100" step="0.1" placeholder="Cost Km" aria-label="CostKm" aria-describedby="basic-addon1" @bind="UserInput.CostKm">
+            </td>
+            <td>
+                <div class="input-group ">
+                    <select class="form-select" id="inputGroupSelect02" @onchange="UserInput.SelectedVehicleType">
+                        <option selected>Vehicle Type</option>
+                        @foreach (var type in Bp.VehicleTypeNames)
+                        {
+                            <option value=@type> @type</option>
+                        }
+                    </select>
+                </div>
+            </td>
+            <td>
+                <input type="number" class="form-control flex-row" placeholder="Cost Day" min="10" max="1000" step="10" aria-label="CostDay" aria-describedby="basic-addon1" @bind="UserInput.CostDay">
+            </td>
+            <td>
+                <div class="align-items-center">
+                    <span class="badge rounded-pill text-bg-danger ">Status Pending</span>
+                </div>
+            </td>
+
+        </tr>
         <tbody>
-            @foreach (var vehicleInfo in Bp.GetVehicles(_visibleVehicle))
-            {
-                <tr>
-                    <td><strong>@vehicleInfo.LicencePlate</strong></td>
-                    <td>@vehicleInfo.Manufacturer</td>
-                    <td>@vehicleInfo.Odometer</td>
-                    <td>@vehicleInfo.KmCost $/km</td>
-                    <td>@vehicleInfo.VehicleType.ToString()</td>
-                    <td>@vehicleInfo.DayCost $/d</td>
-                    <td class="align-items-center">
-                        <span class="badge rounded-pill @(vehicleInfo.VehicleStatus == VehicleStatus.Available ? "text-bg-success": vehicleInfo.VehicleStatus == VehicleStatus.Booked ? "text-bg-danger" : "text-bg-dark")">
-                            @vehicleInfo.VehicleStatus.ToString()
-                        </span>
-                    </td>
-                </tr>
-            }
+        @foreach (var vehicleInfo in Bp.GetVehicles(UserInput.VisibleVehicle))
+        {
+            <tr>
+                <td>
+                    <strong>@vehicleInfo.LicencePlate</strong>
+                </td>
+                <td>@vehicleInfo.Manufacturer</td>
+                <td>@vehicleInfo.Odometer</td>
+                <td>@vehicleInfo.KmCost $/km</td>
+                <td>@vehicleInfo.VehicleType.ToString()</td>
+                <td>@vehicleInfo.DayCost $/d</td>
+                <td class="align-items-center">
+                    <span class="badge rounded-pill @(vehicleInfo.VehicleStatus == VehicleStatus.Available ? "text-bg-success" : vehicleInfo.VehicleStatus == VehicleStatus.Booked ? "text-bg-danger" : "text-bg-dark")">
+                        @vehicleInfo.VehicleStatus.ToString()
+                    </span>
+                </td>
+            </tr>
+        }
         </tbody>
     </table>
-    <br />
+    <br/>
 }
 
 
 <h3>Bookings</h3>
 @if (Bp == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
     <table class="table table-striped table-hover w-80">
         <thead>
-            <tr class="align-items-baseline">
-                <th>RegNo.</th>
-                <th>Customer</th>
-                <th>Start Km</th>
-                <th>Return Km</th>
-                <th>Rent Date</th>
-                <th>Return Date</th>
-                <th>Total Cost $</th>
-                <th>Status</th>
-            </tr>
+        <tr class="align-items-baseline">
+            <th>RegNo.</th>
+            <th>Customer</th>
+            <th>Start Km</th>
+            <th>Return Km</th>
+            <th>Rent Date</th>
+            <th>Return Date</th>
+            <th>Total Cost $</th>
+            <th>Status</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var bookingInfo in Bp.GetBookings())
-            {
-                <tr>
-                    <td><strong>@bookingInfo.Vehicle.LicencePlate</strong></td>
-                    <td>@bookingInfo.Customer.GetFullInfo()</td>
-                    <td>@bookingInfo.OdometerStart</td>
-                    <td>@(bookingInfo.IsActive ? "" : @bookingInfo.OdometerReturn) </td>
-                    <td>@bookingInfo.StartDate.ToShortDateString()</td>
-                    <td>@(bookingInfo.IsActive ? "" : @bookingInfo.ReturnDate.ToShortDateString())</td>
-                    <td>@(bookingInfo.IsActive ? "" : @bookingInfo.TotalCost + " $")</td>
-                    <td class="align-items-center">
-                        <span class="badge @(bookingInfo.BookingStatus switch
-                                           {
-                                               VehicleStatus.Available => "text-bg-success",
-                                               VehicleStatus.Booked => "text-bg-danger",
-                                               _ => "text-bg-dark"
-                                               }) ">
-                            @(bookingInfo.BookingStatus switch
-                            {
-                                VehicleStatus.Available => "Closed",
-                                VehicleStatus.Booked => "Open",
-                                _ => "Unavailable"
-                                })
-                        </span>
-                    </td>
-                </tr>
-            }
+        @foreach (var bookingInfo in Bp.GetBookings())
+        {
+            <tr>
+                <td>
+                    <strong>@bookingInfo.Vehicle.LicencePlate</strong>
+                </td>
+                <td>@bookingInfo.Customer.FullInfo</td>
+                <td>@bookingInfo.OdometerStart</td>
+                <td>@(bookingInfo.IsActive ? "" : @bookingInfo.OdometerReturn) </td>
+                <td>@bookingInfo.StartDate.ToShortDateString()</td>
+                <td>@(bookingInfo.IsActive ? "" : @bookingInfo.ReturnDate.ToShortDateString())</td>
+                <td>@(bookingInfo.IsActive ? "" : @bookingInfo.TotalCost + " $")</td>
+                <td class="align-items-center">
+                    <span class="badge @(bookingInfo.BookingStatus switch
+                                       {
+                                           VehicleStatus.Available => "text-bg-success",
+                                           VehicleStatus.Booked => "text-bg-danger",
+                                           _ => "text-bg-dark"
+                                           }) ">
+                        @(bookingInfo.BookingStatus switch
+                        {
+                            VehicleStatus.Available => "Closed",
+                            VehicleStatus.Booked => "Open",
+                            _ => "Unavailable"
+                            })
+                    </span>
+                </td>
+            </tr>
+        }
         </tbody>
     </table>
-    <br />
+    <br/>
 }
 <h3>Customers</h3>
 @if (Bp == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
     <table class="table table-striped table-hover w-50">
         <thead>
-            <tr class="align-items-baseline">
-                <th>SSN</th>
-                <th>Last Name</th>
-                <th>First Name</th>
-                <th>Registry Date</th>
-            </tr>
+        <tr class="align-items-baseline">
+            <th>SSN</th>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Registry Date</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var customerInfo in Bp.GetCustomers())
-            {
-                <tr>
-                    <td><strong>@customerInfo.GetSecurityNumber()</strong></td>
-                    <td>@customerInfo.GetLastname()</td>
-                    <td>@customerInfo.GetFirstname()</td>
-                    <td>@customerInfo.RegistryDate.ToShortDateString()</td>
-                </tr>
-            }
+        <tr>
+            <td>
+                <span class="input-group-text" id="basic-addon1"></span>
+                <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+            </td>
+        </tr>
+        @foreach (var customerInfo in Bp.GetCustomers())
+        {
+            <tr>
+                <td>
+                    <strong>@customerInfo.SecurityNumber</strong>
+                </td>
+                <td>@customerInfo.LastName</td>
+                <td>@customerInfo.FirstName</td>
+                <td>@customerInfo.RegistryDate.ToShortDateString()</td>
+            </tr>
+        }
         </tbody>
     </table>
-}
-
-
-
-@code {
-    private VehicleStatus _visibleVehicle;
 }

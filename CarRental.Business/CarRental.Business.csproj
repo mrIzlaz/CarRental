@@ -11,4 +11,8 @@
     <ProjectReference Include="..\CarRental.Data\CarRental.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.10" />
+  </ItemGroup>
+
 </Project>

@@ -5,7 +5,6 @@ namespace CarRental.Common.Classes;
 
 public class Booking : IBooking
 {
-    private const int DaysInAYear = 365;
     public bool IsActive { get; set; }
     public Vehicle Vehicle { get; init; }
     public Customer Customer { get; init; }
@@ -25,7 +24,7 @@ public class Booking : IBooking
         VehicleStatus bookingStatus)
     {
         IsActive = true;
-        Vehicle = (Vehicle)vehicle;
+        Vehicle = vehicle;
         Vehicle.VehicleStatus = BookingStatus = bookingStatus;
         Customer = customer;
         OdometerStart = Vehicle.Odometer;
@@ -48,9 +47,8 @@ public class Booking : IBooking
     private void SetTotalCost()
     {
         var dif = Vehicle.Odometer - OdometerStart;
-        var years = ReturnDate.Year - StartDate.Year;
-        var days = (ReturnDate.DayOfYear + (years * DaysInAYear) - StartDate.DayOfYear);
-        TotalCost = Math.Round((dif * Vehicle.KmCost) + (days * Vehicle.KmCost), 2);
+        var daysRented = (ReturnDate - StartDate).TotalDays;
+        TotalCost = Math.Round((dif * Vehicle.KmCost) + (daysRented * Vehicle.KmCost), 2);
     }
 
     public bool TrySetOdometerReturn(int value)
