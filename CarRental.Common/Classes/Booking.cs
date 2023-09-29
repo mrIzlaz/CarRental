@@ -1,4 +1,5 @@
 ﻿using CarRental.Common.Enums;
+using CarRental.Common.Extensions;
 using CarRental.Common.Interfaces;
 
 namespace CarRental.Common.Classes;
@@ -47,7 +48,7 @@ public class Booking : IBooking
     private void SetTotalCost()
     {
         var dif = Vehicle.Odometer - OdometerStart;
-        var daysRented = (ReturnDate - StartDate).TotalDays;
+        var daysRented = StartDate.Duration(ReturnDate);
         TotalCost = Math.Round((dif * Vehicle.KmCost) + (daysRented * Vehicle.KmCost), 2);
     }
 

@@ -35,7 +35,6 @@ public class BookingProcessor
     {
         if (inputs.ValidVehicle)
         {
-            var id = _db.GetVehicles().ToList().Count + 1;
             var plate = inputs.LicensePlate;
             var manu = inputs.VehManufacturer;
             var odo = (int)inputs.Odometer;
@@ -43,16 +42,26 @@ public class BookingProcessor
             var costK = (double)inputs.CostKm;
             var type = (VehicleType)inputs.VehType;
 
-            Vehicle vehicle = inputs.VehType == VehicleType.Motorcycle
-                ? new Motorcycle(id, plate, manu.ToString(), odo, costD, costK)
-                : new Car(id, plate, manu.ToString(), odo, type, costD, costK);
-            _db.Add(vehicle);
+            _db.Add(inputs.VehType == VehicleType.Motorcycle
+                ? new Motorcycle(plate, manu.ToString(), odo, costD, costK)
+                : new Car(plate, manu.ToString(), odo, type, costD, costK));
+        }
+        else if (inputs.ValidReturn)
+        {
+            if (inputs.ReturnVehicle is null || inputs.Distance is null) return;
+            var b = _db.GetBookings().FirstOrDefault(b =>
+                b.BookingStatus == VehicleStatus.Booked &&
+                b.Vehicle.LicencePlate.Equals(inputs.ReturnVehicle.LicencePlate))!.TryCloseBooking(DateTime.Today,
+                inputs.ReturnVehicle.Odometer + (int)inputs.Distance);
         }
         else if (inputs.ValidCustomer)
         {
         }
         else if (inputs.ValidBooking)
         {
+            var customer = _db.GetPersons().Cast<Customer>().FirstOrDefault(c => c.CustomerId == inputs.RentClientID);
+            if (customer == null || inputs.NewBookingVehicle == null) return;
+            _db.Add(new Booking(inputs.NewBookingVehicle, customer, inputs.RentDate));
         }
     }
 

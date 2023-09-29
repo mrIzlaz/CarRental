@@ -26,12 +26,15 @@ public class CollectionData : IData
 
     public void Add(Vehicle vehicle)
     {
-        _vehicles.Add(vehicle);
+        Vehicle newVeh = vehicle.VehicleType == VehicleType.Motorcycle
+            ? new Motorcycle(_vehicles.Count + 1, vehicle)
+            : new Car(_vehicles.Count + 1, vehicle);
+        _vehicles.Add(newVeh);
     }
 
     public void Add(Customer customer)
     {
-        _persons.Add(customer);
+        _persons.Add(new Customer(customer, _persons.Count + 1));
     }
 
     public void Add(Booking booking)
