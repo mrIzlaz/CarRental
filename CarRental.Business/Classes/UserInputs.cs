@@ -12,6 +12,14 @@ public partial class UserInputs
     private readonly BookingProcessor _bp;
     public UserInputs(BookingProcessor bp) => _bp = bp;
 
+    public bool IsProcessing { get; set; } = false;
+
+    public bool ToggleProcessing()
+    {
+        IsProcessing = !IsProcessing;
+        return IsProcessing;
+    }
+
 
     #region Feedback
 
@@ -24,10 +32,10 @@ public partial class UserInputs
     #region New Vehicle
 
     public string LicensePlate { get; set; } = string.Empty;
-    public VehicleManufacturer VehManufacturer { get; set; }
+    public VehicleManufacturer VehManufacturer { get; private set; }
     public int? Odometer { get; set; }
     public double? CostKm { get; set; }
-    public VehicleType? VehType { get; set; }
+    public VehicleType? VehType { get; private set; }
     public int? CostDay { get; set; }
     public VehicleStatus VisibleVehicle { get; set; }
 
@@ -35,7 +43,7 @@ public partial class UserInputs
 
     #region New Booking
 
-    public int? RentClientID { get; private set; }
+    public int? RentClientId { get; private set; }
     public Vehicle? NewBookingVehicle { get; private set; }
     public DateTime RentDate { get; private set; }
 
@@ -50,13 +58,20 @@ public partial class UserInputs
 
     #region New Customer
 
-    private long SocialSecurityNumber { get; set; }
+    public long SocialSecurityNumber { get; private set; }
 
     public string? SsnString
     {
         get => SocialSecurityNumber.ToString("000-00-0000");
         set
         {
+            var parsed = ParseSsn(value);
+            if (parsed.Length < 9)
+            {
+                for (int i = parsed.Length - 1; i < 9; i++)
+                    parsed += "0";
+            }
+
             if (long.TryParse(value, out long result))
                 SocialSecurityNumber = result;
         }
@@ -106,7 +121,7 @@ public partial class UserInputs
     {
         try
         {
-            if (_bp.GetCustomers().All(c => c.CustomerId != RentClientID)) return;
+            if (_bp.GetCustomers().All(c => c.CustomerId != RentClientId)) return;
             RentDate = DateTime.Today;
             ValidBooking = true;
             _bp.Add(this);
@@ -140,8 +155,10 @@ public partial class UserInputs
     {
         try
         {
-            ParseSSN();
+            ParseSsn();
             ParseNames();
+            ValidCustomer = true;
+            _bp.Add(this);
         }
         catch (Exception e)
         {
@@ -164,19 +181,23 @@ public partial class UserInputs
     {
         DataValues += $"Name: {LastName} {FirstName}";
         var rx = MyRegexValidNames();
-        if (!rx.IsMatch(FirstName))
+        if (FirstName != null && !rx.IsMatch(FirstName))
             throw new ArgumentException("Not a valid First Name");
-        if (!rx.IsMatch(LastName))
+        if (LastName != null && !rx.IsMatch(LastName))
             throw new ArgumentException("Not a valid Last Name");
     }
 
-    private void ParseSSN()
+    private void ParseSsn()
     {
-        var parsedSsnString = String.Concat(SsnString!.Where(c => c != '-'));
+        var parsedSsnString = ParseSsn(SsnString);
         if (parsedSsnString.Length != 9)
             throw new ArgumentException(
                 $"Social Security Number is {(parsedSsnString.Length < 9 ? " to short" : "to long")}");
+        if (parsedSsnString.Equals("000000000")) throw new ArgumentException("Please enter a Social Security Number");
     }
+
+    private string ParseSsn(string? ssnString) => String.Concat(ssnString!.Where(c => c != '-'));
+
 
     private void ParseLicensePlate()
     {
@@ -263,7 +284,7 @@ public partial class UserInputs
         if (e.Value is null) return;
         if (int.TryParse(e.Value.ToString(), out int client))
         {
-            RentClientID = client;
+            RentClientId = client;
         }
     }
 
@@ -303,7 +324,7 @@ public partial class UserInputs
 
     private void ClearRentData()
     {
-        RentClientID = null;
+        RentClientId = null;
         NewBookingVehicle = null;
         ValidBooking = false;
     }

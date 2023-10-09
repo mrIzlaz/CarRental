@@ -9,7 +9,6 @@ public class BookingProcessor
 {
     private readonly IData _db;
     public BookingProcessor(IData db) => _db = db;
-
     public IEnumerable<Customer> GetCustomers()
     {
         var list = _db.GetPersons().Where(x => x is Customer).Cast<Customer>().ToList();
@@ -56,10 +55,14 @@ public class BookingProcessor
         }
         else if (inputs.ValidCustomer)
         {
+            if (inputs.FirstName is null || inputs.LastName is null || inputs.SsnString is null ||
+                inputs.SsnString == string.Empty) return;
+            _db.Add(new Customer(inputs.FirstName, inputs.LastName, inputs.SocialSecurityNumber,
+                DateOnly.FromDateTime(DateTime.Now)));
         }
         else if (inputs.ValidBooking)
         {
-            var customer = _db.GetPersons().Cast<Customer>().FirstOrDefault(c => c.CustomerId == inputs.RentClientID);
+            var customer = _db.GetPersons().Cast<Customer>().FirstOrDefault(c => c.CustomerId == inputs.RentClientId);
             if (customer == null || inputs.NewBookingVehicle == null) return;
             _db.Add(new Booking(inputs.NewBookingVehicle, customer, inputs.RentDate));
         }
