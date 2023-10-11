@@ -8,14 +8,12 @@
 
 <h1>Car Rental Assignment G</h1>
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.ToggleProcessing())">Toggle Button Disable</button>
-<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => Bp.TestGet())">Test Debug Button</button>
 @if (UserInput.InputFeedbackMessages.Count != 0)
 {
     foreach (var message in UserInput.InputFeedbackMessages)
     {
         <div class="container-md @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Message: @message</div>
     }
-
     <p>DataValues</p>
     <div class="container-sm @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">@UserInput.DataValues</div>
 }
@@ -23,21 +21,15 @@
 <div class="d-flex">
     <div class="form-check-inline">
         <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked @onclick="() => UserInput.VisibleVehicle = default">
-        <label class="form-check-label" for="flexRadioDefault1">
-            Show All
-        </label>
+        <label class="form-check-label" for="flexRadioDefault1">Show All</label>
     </div>
     <div class="form-check-inline">
         <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" @onclick="() => UserInput.VisibleVehicle = VehicleStatus.Booked">
-        <label class="form-check-label" for="flexRadioDefault2">
-            Only Booked
-        </label>
+        <label class="form-check-label" for="flexRadioDefault2">Only Booked</label>
     </div>
     <div class="form-check-inline">
         <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" @onclick="() => UserInput.VisibleVehicle = VehicleStatus.Available">
-        <label class="form-check-label" for="flexRadioDefault3">
-            Only Available
-        </label>
+        <label class="form-check-label" for="flexRadioDefault3">Only Available</label>
     </div>
 </div>
 
@@ -64,14 +56,14 @@ else
         </thead>
         <tr>
             <td class="w-10">
-                <input type="text" class="form-control" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate">
+                <input type="text" class="form-control" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate " disabled="@UserInput.IsProcessing">
             </td>
             <td class="w-10">
-                <input type="number" class="form-control" min="0" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1" @bind="UserInput.Odometer">
+                <input type="number" class="form-control" min="0" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1" @bind="UserInput.Odometer" disabled="@UserInput.IsProcessing">
             </td>
             <td>
                 <div class="input-group">
-                    <select class="form-select" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged">
+                    <select class="form-select" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged" disabled="@UserInput.IsProcessing">
                         <option selected>Manufacturer</option>
                         @foreach (var type in Bp.VehicleManufacturer)
                         {
@@ -82,7 +74,7 @@ else
             </td>
             <td>
                 <div class="input-group">
-                    <select class="form-select" id="inputGroupSelect02" @onchange="UserInput.ev_SelectedVehicleType">
+                    <select class="form-select" id="inputGroupSelect02" @onchange="UserInput.ev_SelectedVehicleType" disabled="@UserInput.IsProcessing">
                         <option selected>Vehicle Type</option>
                         @foreach (var type in Bp.VehicleTypeNames)
                         {
@@ -92,20 +84,20 @@ else
                 </div>
             </td>
             <td>
-                <input type="number" class="form-control" min="0.2" max="100" step="0.1" placeholder="Cost Km" aria-label="CostKm" aria-describedby="basic-addon1" @bind="UserInput.CostKm">
+                <input type="number" class="form-control" min="0.2" max="100" step="0.1" placeholder="Cost Km" aria-label="CostKm" aria-describedby="basic-addon1" @bind="UserInput.CostKm" disabled="@UserInput.IsProcessing">
             </td>
 
             <td>
-                <input type="number" class="form-control" placeholder="Cost Day" min="10" max="1000" step="10" aria-label="CostDay" aria-describedby="basic-addon1" @bind="UserInput.CostDay">
+                <input type="number" class="form-control" placeholder="Cost Day" min="10" max="1000" step="10" aria-label="CostDay" aria-describedby="basic-addon1" @bind="UserInput.CostDay" disabled="@UserInput.IsProcessing">
             </td>
             <td>
                 <div class="align-items-center">
-                    <button class="btn btn-outline-success" disabled="@UserInput.IsProcessing" @onclick="UserInput.TryAddNewVehicle">Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
+                    <button class="btn btn-outline-success" @onclick="UserInput.TryAddNewVehicle" disabled="@UserInput.IsProcessing"> Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
                 </div>
             </td>
             <td>
                 <div class="align-items-center">
-                    <span class="badge rounded-pill text-bg-danger ">Status Pending</span>
+                    <span class="badge rounded-pill w-100px @(UserInput.IsProcessing ? "text-bg-warning" : "text-bg-light")"> @(UserInput.IsProcessing ? "Loading" : "Ready")</span>
                 </div>
             </td>
         </tr>

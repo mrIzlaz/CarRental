@@ -1,6 +1,6 @@
 ﻿.text-white-80 {
     --bs-text-opacity: 1;
-    color: rgba(255,255,255,.8) !important
+    color: rgba(255, 255, 255, .8) !important
 }
 
 .w-60 {
@@ -15,8 +15,18 @@
     width: 90% !important
 }
 
-.w-10{
+.w-10 {
     width: 10% !important
-}.w-05{
+}
+
+.w-05 {
     width: 5% !important
+}
+
+.w-50px {
+    width: 50px !important;
+}
+
+.w-100px {
+    width: 100px !important;
 }

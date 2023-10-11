@@ -12,11 +12,9 @@ public interface IData
     int NextPersonId { get; }
     int NextBookingId { get; }
 
-    IEnumerable<IPerson> GetPersons();
-
-    IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default);
-
-    IEnumerable<IBooking> GetBookings();
+    //IEnumerable<IPerson> GetPersons();
+    //IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default);
+    //IEnumerable<IBooking> GetBookings();
 
     T? Single<T>(Expression<Func<T, bool>>? expression);
     List<T> Get<T>(Expression<Func<T, bool>>? expression);
