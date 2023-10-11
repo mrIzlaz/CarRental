@@ -1,4 +1,5 @@
-﻿using CarRental.Common.Classes;
+﻿using System.Linq.Expressions;
+using CarRental.Common.Classes;
 using CarRental.Common.Enums;
 using CarRental.Common.Interfaces;
 using CarRental.Data.Interfaces;
@@ -9,6 +10,7 @@ public class BookingProcessor
 {
     private readonly IData _db;
     public BookingProcessor(IData db) => _db = db;
+
     public IEnumerable<Customer> GetCustomers()
     {
         var list = _db.GetPersons().Where(x => x is Customer).Cast<Customer>().ToList();
@@ -28,24 +30,17 @@ public class BookingProcessor
     {
         var list = _db.GetBookings().ToList();
         return list.GetRange(0, list.Count);
+
+        _db.Get<IBooking>(null);
     }
 
     public void Add(UserInputs inputs)
     {
-        if (inputs.ValidVehicle)
-        {
-            var plate = inputs.LicensePlate;
-            var manu = inputs.VehManufacturer;
-            var odo = (int)inputs.Odometer;
-            var costD = (int)inputs.CostDay;
-            var costK = (double)inputs.CostKm;
-            var type = (VehicleType)inputs.VehType;
-
-            _db.Add(inputs.VehType == VehicleType.Motorcycle
-                ? new Motorcycle(plate, manu.ToString(), odo, costD, costK)
-                : new Car(plate, manu.ToString(), odo, type, costD, costK));
-        }
-        else if (inputs.ValidReturn)
+        if (inputs.Vehicle != null)
+            _db.Add(inputs.Vehicle);
+        else if (inputs.Customer != null)
+            _db.Add(inputs.Customer);
+        else if (inputs.HasValidReturn)
         {
             if (inputs.ReturnVehicle is null || inputs.Distance is null) return;
             var b = _db.GetBookings().FirstOrDefault(b =>
@@ -53,19 +48,18 @@ public class BookingProcessor
                 b.Vehicle.LicencePlate.Equals(inputs.ReturnVehicle.LicencePlate))!.TryCloseBooking(DateTime.Today,
                 inputs.ReturnVehicle.Odometer + (int)inputs.Distance);
         }
-        else if (inputs.ValidCustomer)
-        {
-            if (inputs.FirstName is null || inputs.LastName is null || inputs.SsnString is null ||
-                inputs.SsnString == string.Empty) return;
-            _db.Add(new Customer(inputs.FirstName, inputs.LastName, inputs.SocialSecurityNumber,
-                DateOnly.FromDateTime(DateTime.Now)));
-        }
-        else if (inputs.ValidBooking)
+        else if (inputs.HasValidBooking)
         {
             var customer = _db.GetPersons().Cast<Customer>().FirstOrDefault(c => c.CustomerId == inputs.RentClientId);
             if (customer == null || inputs.NewBookingVehicle == null) return;
             _db.Add(new Booking(inputs.NewBookingVehicle, customer, inputs.RentDate));
         }
+    }
+
+    public void TestGet()
+    {
+        Expression<Func<Vehicle, bool>> expr = i => i.VehicleStatus == VehicleStatus.Available;
+        _db.Get<Vehicle>(expr);
     }
 
     public string[] GetVehicleStatusNames => _db.VehicleStatusNames;

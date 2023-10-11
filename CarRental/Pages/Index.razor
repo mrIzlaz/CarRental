@@ -8,6 +8,7 @@
 
 <h1>Car Rental Assignment G</h1>
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.ToggleProcessing())">Toggle Button Disable</button>
+<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => Bp.TestGet())">Test Debug Button</button>
 @if (UserInput.InputFeedbackMessages.Count != 0)
 {
     foreach (var message in UserInput.InputFeedbackMessages)
@@ -99,7 +100,7 @@ else
             </td>
             <td>
                 <div class="align-items-center">
-                    <button class="btn btn-outline-success" disabled="@UserInput.IsProcessing" @onclick="UserInput.TryAddNewCar">Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
+                    <button class="btn btn-outline-success" disabled="@UserInput.IsProcessing" @onclick="UserInput.TryAddNewVehicle">Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
                 </div>
             </td>
             <td>

@@ -1,4 +1,5 @@
-﻿using CarRental.Common.Classes;
+﻿using System.Linq.Expressions;
+using CarRental.Common.Classes;
 
 namespace CarRental.Business.Classes;
 
@@ -32,7 +33,7 @@ public partial class UserInputs
     #region New Vehicle
 
     public string LicensePlate { get; set; } = string.Empty;
-    public VehicleManufacturer VehManufacturer { get; private set; }
+    private VehicleManufacturer VehManufacturer { get; set; }
     public int? Odometer { get; set; }
     public double? CostKm { get; set; }
     public VehicleType? VehType { get; private set; }
@@ -58,7 +59,7 @@ public partial class UserInputs
 
     #region New Customer
 
-    public long SocialSecurityNumber { get; private set; }
+    private long SocialSecurityNumber { get; set; }
 
     public string? SsnString
     {
@@ -82,12 +83,12 @@ public partial class UserInputs
 
     #endregion
 
-    public bool ValidVehicle { get; private set; }
-    public bool ValidCustomer { get; private set; }
-    public bool ValidBooking { get; private set; }
-    public bool ValidReturn { get; private set; }
+    public Vehicle? Vehicle { get; private set; }
+    public Customer? Customer { get; private set; }
+    public bool HasValidBooking { get; private set; }
+    public bool HasValidReturn { get; private set; }
 
-    public void TryAddNewCar()
+    public void TryAddNewVehicle()
     {
         ClearFeedbackMessage();
         try
@@ -98,6 +99,15 @@ public partial class UserInputs
             ParseOdometer();
             ParseCostKm();
             ParseCostDay();
+
+            Vehicle = CreateVehicle();
+            if (Vehicle != null)
+                _bp.Add(this);
+            else
+            {
+                throw new Exception("Vehicle Data Error");
+            }
+            ClearVehicleData();
         }
         catch (ArgumentException e)
         {
@@ -108,22 +118,18 @@ public partial class UserInputs
             InputFeedbackMessages.Add(e.Message);
         }
 
+     
         if (InputFeedbackMessages.Count != 0) return;
-
         InputFeedbackMessages.Add("All Data is valid");
-        ValidVehicle = true;
-        _bp.Add(this);
-        ClearVehicleData();
     }
-
-
     private void TryRent()
     {
+        ClearFeedbackMessage();
         try
         {
             if (_bp.GetCustomers().All(c => c.CustomerId != RentClientId)) return;
             RentDate = DateTime.Today;
-            ValidBooking = true;
+            HasValidBooking = true;
             _bp.Add(this);
         }
         catch (Exception e)
@@ -133,14 +139,14 @@ public partial class UserInputs
 
         ClearRentData();
     }
-
     private void TryReturnVehicle()
     {
+        ClearFeedbackMessage();
         try
         {
             ParseDistance();
             ParseVehicle();
-            ValidReturn = true;
+            HasValidReturn = true;
             _bp.Add(this);
         }
         catch (Exception e)
@@ -150,15 +156,18 @@ public partial class UserInputs
 
         ClearReturnData();
     }
-
     private void TryAddNewCustomer()
     {
+        ClearFeedbackMessage();
         try
         {
             ParseSsn();
             ParseNames();
-            ValidCustomer = true;
-            _bp.Add(this);
+            Customer = CreateCustomer();
+            if (Customer != null)
+                _bp.Add(this);
+            else
+                throw new Exception("Customer Data Error");
         }
         catch (Exception e)
         {
@@ -167,15 +176,19 @@ public partial class UserInputs
 
         ClearNewCustomerData();
     }
-
-    private void ClearNewCustomerData()
+    private Vehicle CreateVehicle()
     {
-        SocialSecurityNumber = 0;
-        SsnString = string.Empty;
-        FirstName = string.Empty;
-        LastName = string.Empty;
-        ValidCustomer = false;
+        return VehType == VehicleType.Motorcycle
+            ? new Motorcycle(LicensePlate, VehManufacturer.ToString(), (int)Odometer, (int)CostDay, (double)CostKm)
+            : new Car(LicensePlate, VehManufacturer.ToString(), (int)Odometer, (VehicleType)VehType, (int)CostDay,
+                (double)CostKm);
     }
+    private Customer CreateCustomer()
+    {
+        return new Customer(FirstName, LastName, SocialSecurityNumber, DateOnly.FromDateTime(DateTime.Today));
+    }
+
+    #region DataValidation
 
     private void ParseNames()
     {
@@ -196,7 +209,7 @@ public partial class UserInputs
         if (parsedSsnString.Equals("000000000")) throw new ArgumentException("Please enter a Social Security Number");
     }
 
-    private string ParseSsn(string? ssnString) => String.Concat(ssnString!.Where(c => c != '-'));
+    private static string ParseSsn(string? ssnString) => string.Concat(ssnString!.Where(c => c != '-'));
 
 
     private void ParseLicensePlate()
@@ -205,6 +218,8 @@ public partial class UserInputs
         var rx = MyRegexValidLicensePlate(); //^[A-Z]{3} ?[0-9]{2}[A-z0-9]$
         if (!rx.IsMatch(LicensePlate))
             throw new ArgumentException("Not a valid Swedish License Plate");
+        var str = LicensePlate.Insert(3, " ").ToUpper();
+        LicensePlate = str;
     }
 
     private void ParseOdometer()
@@ -264,6 +279,10 @@ public partial class UserInputs
         throw new ArgumentException("Return Vehicle missing");
     }
 
+    #endregion
+
+    #region UserEvents
+
     public void ev_SelectedVehicleType(ChangeEventArgs e)
     {
         if (e.Value is null) return;
@@ -276,7 +295,7 @@ public partial class UserInputs
         if (e.Value is null) return;
         Enum.TryParse(e.Value.ToString(), out VehicleManufacturer manufacturer);
         VehManufacturer = manufacturer;
-        UpdateCosts();
+        OnManufacturerUpdate();
     }
 
     public void ev_SelectClient(ChangeEventArgs e)
@@ -305,11 +324,15 @@ public partial class UserInputs
         TryAddNewCustomer();
     }
 
-    private void UpdateCosts()
+    private void OnManufacturerUpdate()
     {
         CostKm = VehManufacturer.GetVehicleCost(true);
         CostDay = (int)VehManufacturer.GetVehicleCost();
     }
+
+    #endregion
+
+    #region ClearData
 
     private void ClearVehicleData()
     {
@@ -319,21 +342,21 @@ public partial class UserInputs
         CostKm = null;
         VehType = null;
         CostDay = null;
-        ValidVehicle = default;
+        Vehicle = default;
     }
 
     private void ClearRentData()
     {
         RentClientId = null;
         NewBookingVehicle = null;
-        ValidBooking = false;
+        HasValidBooking = false;
     }
 
     private void ClearReturnData()
     {
         Distance = null;
         ReturnVehicle = null;
-        ValidReturn = false;
+        HasValidReturn = false;
     }
 
     private void ClearFeedbackMessage()
@@ -342,6 +365,18 @@ public partial class UserInputs
         DataValues = string.Empty;
         IsInputValid = false;
     }
+
+
+    private void ClearNewCustomerData()
+    {
+        SocialSecurityNumber = 0;
+        SsnString = string.Empty;
+        FirstName = string.Empty;
+        LastName = string.Empty;
+        Customer = default;
+    }
+
+    #endregion
 
     [GeneratedRegex("\\b(^[A-Z]{3} ?[0-9]{2}[A-z0-9]$)\\b", RegexOptions.IgnoreCase, "sv-SE")]
     private static partial Regex MyRegexValidLicensePlate();
