@@ -11,48 +11,61 @@ using CarRental.Common.Classes;
 
 public class CollectionData : IData
 {
+    private readonly DataFactory _producer;
+    private readonly List<IPerson> _persons = new();
+    private readonly List<Vehicle> _vehicles = new();
+    private readonly List<IBooking> _bookings = new();
     public int NextPersonId => _persons.Count + 1;
     public int NextVehicleId => _vehicles.Count + 1;
     public int NextBookingId => _bookings.Count + 1;
 
-    private readonly DataFactory _producer = new();
-    public CollectionData() => SeedData();
+    public CollectionData()
+    {
+        _producer = new DataFactory(this);
+        SeedData();
+    }
 
-    private readonly List<IPerson> _persons = new();
-    private readonly List<Vehicle> _vehicles = new();
-    private readonly List<IBooking> _bookings = new();
-    public IEnumerable<IBooking> GetBookings() => _bookings.OrderByDescending(x => x.BookingStatus).Reverse();
-    public IEnumerable<IPerson> GetPersons() => _persons;
+    public IBooking? RentVehicle(int vehicleId, int customerId)
+    {
+        var customer = Get<IPerson>(null).Cast<Customer>().Single(c => c.CustomerId == customerId);
+        var vehicle = Single<Vehicle>(v => v.Id == vehicleId);
+        if (customer == null || vehicle == null) return null;
+        return new Booking(NextBookingId, vehicle, customer, DateTime.Today);
+    }
 
-    public IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default) =>
-        status == default ? _vehicles : _vehicles.Where(x => x.VehicleStatus == status);
+    public IBooking? ReturnVehicle(int vehicleId) =>
+        Single<IBooking>(b => b.BookingStatus == VehicleStatus.Booked && b.Vehicle.Id.Equals(vehicleId));
+
 
     public T? Single<T>(Expression<Func<T, bool>>? expression)
     {
         var func = expression?.Compile();
-        GetListFrom<T>(out var list);
+        var list = GetListFrom<T>();
         if (list == null) return default;
         return func != null ? list.SingleOrDefault(func) : default;
     }
 
-    public List<T> Get<T>(Expression<Func<T, bool>>? expression)
+    public IEnumerable<T> Get<T>(Expression<Func<T, bool>>? expression)
     {
         var func = expression?.Compile();
-        GetListFrom<T>(out var list);
+        var list = GetListFrom<T>();
         if (list == null) return new List<T>();
         return func == null ? list : list.Where(func).ToList();
     }
 
     public void Add<T>(T item)
     {
-        GetListFrom<T>(out var list);
-        list?.Add(item);
+        var result = GetListFrom<T>();
+        if (result == null)
+            throw new Exception($"Can't handle {typeof(T)}");
+        result.Add(item);
     }
 
-    private void GetListFrom<T>(out List<T>? list)
+    private List<T>? GetListFrom<T>()
     {
         FieldInfo[] fieldInfo = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
-        list = fieldInfo.FirstOrDefault(f => f.FieldType == typeof(List<T>))?.GetValue(this) as List<T>;
+        var list = fieldInfo.FirstOrDefault(f => f.FieldType == typeof(List<T>))?.GetValue(this) as List<T>;
+        return list;
     }
 
     private void SeedData()

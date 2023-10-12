@@ -117,21 +117,21 @@ else
                     @if (vehicleInfo.VehicleStatus == VehicleStatus.Available)
                     {
                         <div class="input-group">
-                            <select class="form-select" id="inputGroupCustomer" @onchange="UserInput.ev_SelectClient">
-                                - <option selected>Client</option>
+                            <select class="form-select" id="inputGroupCustomer" @onchange="UserInput.ev_SelectClient" disabled="@UserInput.IsProcessing">
+                                <option selected>Client</option>
                                 @foreach (var type in Bp.GetCustomers())
                                 {
                                     <option value=@type.CustomerId> @type.FirstName @type.LastName</option>
                                 }
                             </select>
-                            <button class="btn btn-outline-primary" disabled="@UserInput.IsProcessing" @onclick="(() => UserInput.ev_RentVehicle(vehicleInfo))">Rent</button>
+                            <button class="btn btn-outline-primary"  @onclick="(() => UserInput.ev_RentVehicle(vehicleInfo.Id))" disabled="@UserInput.IsProcessing">Rent</button>
                         </div>
                     }
                     else
                     {
                         <div class="input-group">
-                            <input type="number" class="form-control flex-row" min="0" placeholder="Distance" aria-label="Dist" aria-describedby="basic-addon1" @bind="UserInput.Distance">
-                            <button class="btn btn-outline-primary" disabled="@UserInput.IsProcessing" @onclick="(() => UserInput.ev_ReturnVehicle(vehicleInfo))">Return</button>
+                            <input type="number" class="form-control flex-row" min="0" placeholder="Distance" aria-label="Dist" aria-describedby="basic-addon1" @bind="UserInput.Distance" disabled="@UserInput.IsProcessing">
+                            <button class="btn btn-outline-primary"  @onclick="(() => UserInput.ev_ReturnVehicle(vehicleInfo))" disabled="@UserInput.IsProcessing">Return</button>
                         </div>
                     }
                 </td>
@@ -234,7 +234,7 @@ else
             </td>
             <td>
                 <div>
-                    <button class="btn btn-success" disabled="@UserInput.IsProcessing" @onclick="UserInput.ev_AddNewCustomer">New Client</button>
+                    <button class="btn btn-success" @onclick="UserInput.ev_AddNewCustomer">New Client</button>
                 </div>
             </td>
 

@@ -11,18 +11,12 @@ public interface IData
     int NextVehicleId { get; }
     int NextPersonId { get; }
     int NextBookingId { get; }
-
-    //IEnumerable<IPerson> GetPersons();
-    //IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default);
-    //IEnumerable<IBooking> GetBookings();
-
+    IBooking? RentVehicle( int vehicleId, int customerId);
+    IBooking? ReturnVehicle( int vehicleId);
     T? Single<T>(Expression<Func<T, bool>>? expression);
-    List<T> Get<T>(Expression<Func<T, bool>>? expression);
+    IEnumerable<T> Get<T>(Expression<Func<T, bool>>? expression);
     public void Add<T>(T item);
-
-
     public string[] VehicleStatusNames => Enum.GetNames(typeof(VehicleStatus));
-
     public IEnumerable<string> VehicleTypeNames => Enum.GetNames(typeof(VehicleType));
     public IEnumerable<string> VehicleManufacturer => Enum.GetNames(typeof(VehicleManufacturer));
     public VehicleType GetVehicleType(string name) => (VehicleType)Enum.Parse(typeof(VehicleType), name);

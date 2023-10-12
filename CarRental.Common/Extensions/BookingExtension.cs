@@ -2,5 +2,5 @@
 
 public static class BookingExtension
 {
-    public static int Duration(this DateTime startDate, DateTime endDate) => (int)(startDate - endDate).TotalDays;
+    public static int Duration(this DateTime startDate, DateTime endDate) => (int)(endDate - startDate).TotalDays;
 }

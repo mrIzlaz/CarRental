@@ -13,36 +13,56 @@ public class BookingProcessor
     public IEnumerable<Customer> GetCustomers() => _db.Get<IPerson>(p => p is Customer).Cast<Customer>();
 
     public IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default) =>
-        _db.Get<Vehicle>(status == default ? null : v => v.VehicleStatus == status);
+        _db.Get<Vehicle>(status == default ? null : v => v.VehicleStatus == status)
+            .OrderByDescending(x => x.VehicleStatus).ToList();
 
 
-    public IEnumerable<IBooking> GetBookings() => _db.Get<IBooking>(null);
+    public IEnumerable<IBooking> GetBookings() =>
+        _db.Get<IBooking>(null).OrderBy(x => x.BookingStatus);
 
 
-    public void Add(UserInputs inputs)
+    public async Task HandleUserInput(UserInputs inputs)
     {
-        if (inputs.Vehicle != null)
-            _db.Add(inputs.Vehicle);
-        else if (inputs.Customer != null)
-            _db.Add(inputs.Customer);
-        else if (inputs.HasValidReturn)
+        switch (inputs.ValidUserInputData)
         {
-            if (inputs.ReturnVehicle is null || inputs.Distance is null) return;
-            _db.Single<IBooking>(b => b.BookingStatus == VehicleStatus.Booked &&
-                                      b.Vehicle.LicencePlate.Equals(inputs.ReturnVehicle
-                                          .LicencePlate))
-                ?.TryCloseBooking(DateTime.Today, inputs.ReturnVehicle.Odometer + (int)inputs.Distance);
-        }
-        else if (inputs.HasValidBooking)
-        {
-            var customer = GetCustomers().SingleOrDefault(c => c.CustomerId == inputs.RentClientId);
-            if (customer == null || inputs.NewBookingVehicle == null) return;
-            _db.Add(new Booking(inputs.NewBookingVehicle, customer, inputs.RentDate));
+            case ValidUserInputData.Vehicle:
+            {
+                await Task.Delay(1000);
+                var veh = inputs.GetVehicle(_db.NextVehicleId);
+                if (veh != null)
+                    _db.Add(veh);
+                break;
+            }
+            case ValidUserInputData.Customer:
+            {
+                await Task.Delay(1000);
+                var cus = inputs.GetCustomer(_db.NextPersonId);
+                _db.Add(cus);
+                break;
+            }
+            case ValidUserInputData.Returning when inputs.ReturnVehicle is null || inputs.Distance is null:
+                return;
+            case ValidUserInputData.Returning:
+            {
+                await Task.Delay(1000);
+                var booking = _db.ReturnVehicle(inputs.ReturnVehicle.Id);
+                booking?.TryCloseBooking(DateTime.Today, inputs.ReturnVehicle.Odometer + (int)inputs.Distance);
+                break;
+            }
+            case ValidUserInputData.Booking:
+            {
+                inputs.IsProcessing = true;
+                await Task.Delay(5000);
+                var booking = _db.RentVehicle((int)inputs.RentVehicleId, (int)inputs.RentCustomerId);
+                if (booking != null) _db.Add(booking);
+                inputs.IsProcessing = false;
+                break;
+            }
+            case ValidUserInputData.None:
+                break;
         }
     }
 
-    public string[] GetVehicleStatusNames => _db.VehicleStatusNames;
     public IEnumerable<string> VehicleTypeNames => _db.VehicleTypeNames;
     public IEnumerable<string> VehicleManufacturer => _db.VehicleManufacturer;
-    public VehicleType GetVehicleType(string name) => _db.GetVehicleType(name);
 }

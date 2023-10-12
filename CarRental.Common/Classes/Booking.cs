@@ -7,6 +7,7 @@ namespace CarRental.Common.Classes;
 public class Booking : IBooking
 {
     public bool IsActive { get; set; }
+    public int BookingId { get; set; }
     public Vehicle Vehicle { get; init; }
     public Customer Customer { get; init; }
     public DateTime StartDate { get; init; }
@@ -16,14 +17,15 @@ public class Booking : IBooking
     public double? TotalCost { get; set; }
     public VehicleStatus BookingStatus { get; set; }
 
-    public Booking(Vehicle vehicle, Customer customer, DateTime startDate) : this(vehicle, customer, startDate,
-        startDate, VehicleStatus.Booked)
+    public Booking(int id, Vehicle vehicle, Customer customer, DateTime startDate) : this(id, vehicle, customer,
+        startDate, startDate, VehicleStatus.Booked)
     {
     }
 
-    public Booking(Vehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate,
+    public Booking(int id, Vehicle vehicle, Customer customer, DateTime startDate, DateTime returnDate,
         VehicleStatus bookingStatus)
     {
+        BookingId = id;
         IsActive = true;
         Vehicle = vehicle;
         Vehicle.VehicleStatus = BookingStatus = bookingStatus;
@@ -49,7 +51,8 @@ public class Booking : IBooking
     {
         var dif = Vehicle.Odometer - OdometerStart;
         var daysRented = StartDate.Duration(ReturnDate);
-        TotalCost = Math.Round((dif * Vehicle.KmCost) + (daysRented * Vehicle.KmCost), 2);
+        if (daysRented == 0) daysRented = 1;
+        TotalCost = Math.Round((dif * Vehicle.KmCost) + (daysRented * Vehicle.DayCost), 2);
     }
 
     public bool TrySetOdometerReturn(int value)

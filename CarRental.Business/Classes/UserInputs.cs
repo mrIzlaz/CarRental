@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using CarRental.Common.Classes;
+﻿using CarRental.Common.Classes;
 
 namespace CarRental.Business.Classes;
 
@@ -13,7 +12,8 @@ public partial class UserInputs
     private readonly BookingProcessor _bp;
     public UserInputs(BookingProcessor bp) => _bp = bp;
 
-    public bool IsProcessing { get; set; } = false;
+    public ValidUserInputData ValidUserInputData { get; private set; }
+    public bool IsProcessing { get; set; }
 
     public bool ToggleProcessing()
     {
@@ -33,27 +33,12 @@ public partial class UserInputs
     #region New Vehicle
 
     public string LicensePlate { get; set; } = string.Empty;
-    private VehicleManufacturer VehManufacturer { get; set; }
+    public VehicleManufacturer VehManufacturer { get; set; }
     public int? Odometer { get; set; }
     public double? CostKm { get; set; }
     public VehicleType? VehType { get; private set; }
     public int? CostDay { get; set; }
     public VehicleStatus VisibleVehicle { get; set; }
-
-    #endregion
-
-    #region New Booking
-
-    public int? RentClientId { get; private set; }
-    public Vehicle? NewBookingVehicle { get; private set; }
-    public DateTime RentDate { get; private set; }
-
-    #endregion
-
-    #region Returning
-
-    public Vehicle? ReturnVehicle { get; private set; }
-    public int? Distance { get; set; }
 
     #endregion
 
@@ -83,12 +68,21 @@ public partial class UserInputs
 
     #endregion
 
-    public Vehicle? Vehicle { get; private set; }
-    public Customer? Customer { get; private set; }
-    public bool HasValidBooking { get; private set; }
-    public bool HasValidReturn { get; private set; }
+    #region New Booking
 
-    public void TryAddNewVehicle()
+    public int? RentCustomerId { get; private set; }
+    public int? RentVehicleId { get; private set; }
+
+    #endregion
+
+    #region Returning
+
+    public Vehicle? ReturnVehicle { get; private set; }
+    public int? Distance { get; set; }
+
+    #endregion
+
+    public async Task TryAddNewVehicle()
     {
         ClearFeedbackMessage();
         try
@@ -100,13 +94,8 @@ public partial class UserInputs
             ParseCostKm();
             ParseCostDay();
 
-            Vehicle = CreateVehicle();
-            if (Vehicle != null)
-                _bp.Add(this);
-            else
-            {
-                throw new Exception("Vehicle Data Error");
-            }
+            ValidUserInputData = ValidUserInputData.Vehicle;
+            await _bp.HandleUserInput(this);
             ClearVehicleData();
         }
         catch (ArgumentException e)
@@ -118,19 +107,19 @@ public partial class UserInputs
             InputFeedbackMessages.Add(e.Message);
         }
 
-     
+
         if (InputFeedbackMessages.Count != 0) return;
         InputFeedbackMessages.Add("All Data is valid");
     }
-    private void TryRent()
+
+    private async Task TryRent()
     {
         ClearFeedbackMessage();
         try
         {
-            if (_bp.GetCustomers().All(c => c.CustomerId != RentClientId)) return;
-            RentDate = DateTime.Today;
-            HasValidBooking = true;
-            _bp.Add(this);
+            if (_bp.GetCustomers().All(c => c.CustomerId != RentCustomerId)) return;
+            ValidUserInputData = ValidUserInputData.Booking;
+            await _bp.HandleUserInput(this);
         }
         catch (Exception e)
         {
@@ -139,15 +128,16 @@ public partial class UserInputs
 
         ClearRentData();
     }
-    private void TryReturnVehicle()
+
+    private async Task TryReturnVehicle()
     {
         ClearFeedbackMessage();
         try
         {
             ParseDistance();
             ParseVehicle();
-            HasValidReturn = true;
-            _bp.Add(this);
+            ValidUserInputData = ValidUserInputData.Returning;
+            await _bp.HandleUserInput(this);
         }
         catch (Exception e)
         {
@@ -156,18 +146,16 @@ public partial class UserInputs
 
         ClearReturnData();
     }
-    private void TryAddNewCustomer()
+
+    private async Task TryAddNewCustomer()
     {
         ClearFeedbackMessage();
         try
         {
             ParseSsn();
             ParseNames();
-            Customer = CreateCustomer();
-            if (Customer != null)
-                _bp.Add(this);
-            else
-                throw new Exception("Customer Data Error");
+            ValidUserInputData = ValidUserInputData.Customer;
+            await _bp.HandleUserInput(this);
         }
         catch (Exception e)
         {
@@ -176,17 +164,22 @@ public partial class UserInputs
 
         ClearNewCustomerData();
     }
-    private Vehicle CreateVehicle()
+
+    public Vehicle? GetVehicle(int idNo)
     {
-        return VehType == VehicleType.Motorcycle
-            ? new Motorcycle(LicensePlate, VehManufacturer.ToString(), (int)Odometer, (int)CostDay, (double)CostKm)
-            : new Car(LicensePlate, VehManufacturer.ToString(), (int)Odometer, (VehicleType)VehType, (int)CostDay,
+        if (ValidUserInputData == ValidUserInputData.Vehicle) return null;
+        Vehicle vehicle = VehType == VehicleType.Motorcycle
+            ? new Motorcycle(idNo, LicensePlate, VehManufacturer.ToString(), (int)Odometer, (int)CostDay,
+                (double)CostKm)
+            : new Car(idNo, LicensePlate, VehManufacturer.ToString(), (int)Odometer, (VehicleType)VehType, (int)CostDay,
                 (double)CostKm);
+        return vehicle;
     }
-    private Customer CreateCustomer()
-    {
-        return new Customer(FirstName, LastName, SocialSecurityNumber, DateOnly.FromDateTime(DateTime.Today));
-    }
+
+    public Customer? GetCustomer(int idNo) => ValidUserInputData == ValidUserInputData.Customer
+        ? new Customer(idNo, FirstName, LastName, SocialSecurityNumber, DateOnly.FromDateTime(DateTime.Today))
+        : null;
+
 
     #region DataValidation
 
@@ -303,26 +296,24 @@ public partial class UserInputs
         if (e.Value is null) return;
         if (int.TryParse(e.Value.ToString(), out int client))
         {
-            RentClientId = client;
+            RentCustomerId = client;
         }
     }
 
-    public void ev_RentVehicle(Vehicle vehicle)
+    public async Task ev_RentVehicle(int vehicle)
     {
-        NewBookingVehicle = vehicle;
-        TryRent();
+        RentVehicleId = vehicle;
+        await TryRent();
     }
 
-    public void ev_ReturnVehicle(Vehicle vehicle)
+    public async Task ev_ReturnVehicle(Vehicle vehicle)
     {
         ReturnVehicle = vehicle;
-        TryReturnVehicle();
+        await TryReturnVehicle();
     }
 
-    public void ev_AddNewCustomer()
-    {
-        TryAddNewCustomer();
-    }
+    public async Task ev_AddNewCustomer() => await TryAddNewCustomer();
+
 
     private void OnManufacturerUpdate()
     {
@@ -342,21 +333,21 @@ public partial class UserInputs
         CostKm = null;
         VehType = null;
         CostDay = null;
-        Vehicle = default;
+        ValidUserInputData = default;
     }
 
     private void ClearRentData()
     {
-        RentClientId = null;
-        NewBookingVehicle = null;
-        HasValidBooking = false;
+        RentCustomerId = null;
+        RentVehicleId = null;
+        ValidUserInputData = default;
     }
 
     private void ClearReturnData()
     {
         Distance = null;
         ReturnVehicle = null;
-        HasValidReturn = false;
+        ValidUserInputData = default;
     }
 
     private void ClearFeedbackMessage()
@@ -373,7 +364,7 @@ public partial class UserInputs
         SsnString = string.Empty;
         FirstName = string.Empty;
         LastName = string.Empty;
-        Customer = default;
+        ValidUserInputData = default;
     }
 
     #endregion
@@ -383,4 +374,13 @@ public partial class UserInputs
 
     [GeneratedRegex(@"^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,}$")]
     private static partial Regex MyRegexValidNames();
+}
+
+public enum ValidUserInputData
+{
+    None,
+    Customer,
+    Vehicle,
+    Booking,
+    Returning
 }

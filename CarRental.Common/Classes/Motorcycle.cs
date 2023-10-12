@@ -13,16 +13,5 @@ public class Motorcycle : Vehicle
     {
         Id = id;
     }
-
-    public Motorcycle(string licencePlate, string manufacturer, int odometer, int dayCost = 0,
-        double kmCost = 0) : base(licencePlate, manufacturer, odometer, VehicleType.Motorcycle, dayCost, kmCost)
-    {
-        LicencePlate = licencePlate;
-        Manufacturer = manufacturer;
-        VehicleType = VehicleType.Motorcycle;
-        Odometer = odometer;
-        DayCost = dayCost;
-        KmCost = kmCost;
-        VehicleStatus = VehicleStatus.Available;
-    }
+    
 }

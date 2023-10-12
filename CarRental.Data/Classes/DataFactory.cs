@@ -2,6 +2,7 @@
 using CarRental.Common.Enums;
 using CarRental.Common.Interfaces;
 using System.Text;
+using CarRental.Data.Interfaces;
 
 namespace CarRental.Data.Classes;
 
@@ -9,7 +10,9 @@ public sealed class DataFactory
 {
     private static int NumberOfVehicleStatus => Enum.GetNames(typeof(VehicleStatus)).Length;
 
+    private IData _db;
     private int _customerId;
+    private int _bookingId;
     private int _carId;
 
     private readonly char[] _charData =
@@ -21,16 +24,22 @@ public sealed class DataFactory
     private readonly Dictionary<string, Vehicle> _carLib = new();
     private readonly Dictionary<string, IBooking> _bookings = new();
 
-
     private readonly IEnumerable<Vehicle> _iVehicles;
     private readonly IEnumerable<IPerson> _iPersons;
     private readonly IEnumerable<IBooking> _iBookings;
 
-    public DataFactory(int vehicleCount = 8, int customerCount = 4, int bookingCount = 3)
+
+    public DataFactory(IData db, int vehicleCount = 8, int customerCount = 4, int bookingCount = 3)
     {
+        _db = db;
         _iVehicles = GenerateIVehicleList(vehicleCount);
         _iPersons = GenerateIPersonList(customerCount);
         _iBookings = GenerateIBookingsList(_iPersons.Cast<Customer>().ToList(), _iVehicles.ToList(), bookingCount);
+    }
+
+    public DataFactory(IData db) : this(db, 8, 4, 3)
+    {
+        _db = db;
     }
 
     public IEnumerable<Vehicle> GetVehicles() => _iVehicles;
@@ -97,7 +106,7 @@ public sealed class DataFactory
                 var lastName = lastNames[rnd.Next(lastNames.Count - 1)];
                 var ssn = GenerateSsn();
                 var date = GenerateDate(GeneratedDateVariants.RegistryDate);
-                var cus = new Customer(firstName, lastName, ssn, date, _customerId);
+                var cus = new Customer(_customerId, firstName, lastName, ssn, date);
                 _customerId++;
                 list.Add(cus);
             }
@@ -176,7 +185,7 @@ public sealed class DataFactory
         var vehicle = GetUnbookedVehicle(vehiclesForRent);
         var customer = TryGetAvailableCustomer(customerList);
         var startDate = GenerateDate(GeneratedDateVariants.BookingsDate).ToDateTime(new TimeOnly());
-        var newBooking = new Booking(vehicle, customer, startDate);
+        var newBooking = new Booking(_bookingId++, vehicle, customer, startDate);
         switch (bookingStatus)
         {
             case VehicleStatus.Available:
@@ -186,7 +195,7 @@ public sealed class DataFactory
             case VehicleStatus.Booked:
                 return newBooking;
             case VehicleStatus.Unavailable:
-                return new Booking(vehicle, customer, startDate, GetReturnDate(startDate), bookingStatus);
+                return new Booking(_bookingId++, vehicle, customer, startDate, GetReturnDate(startDate), bookingStatus);
             default:
                 return newBooking;
         }
