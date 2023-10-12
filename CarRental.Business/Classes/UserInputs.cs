@@ -36,7 +36,9 @@ public partial class UserInputs
     #endregion
 
     #region New Customer
+
     private long SocialSecurityNumber { get; set; }
+
     public string? SsnString
     {
         get => SocialSecurityNumber.ToString("000-00-0000");
@@ -48,11 +50,13 @@ public partial class UserInputs
                 for (var i = parsed.Length - 1; i < 9; i++)
                     parsed += "0";
             }
+
             parsed = parsed[..9];
             if (long.TryParse(parsed, out var result))
                 SocialSecurityNumber = result;
         }
     }
+
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
 
@@ -201,9 +205,9 @@ public partial class UserInputs
         var rx = MyRegexValidLicensePlate(); //^[A-Z]{3} ?[0-9]{2}[A-z0-9]$
         if (!rx.IsMatch(LicensePlate))
             throw new ArgumentException("Not a valid Swedish License Plate");
-        if (!char.IsWhiteSpace(LicensePlate[3]) && LicensePlate[3] != ' ') return;
-        var str = LicensePlate.Insert(3, " ").ToUpper();
-        LicensePlate = str;
+        LicensePlate = LicensePlate.ToUpper();
+        if (char.IsWhiteSpace(LicensePlate[3])) return;
+        LicensePlate = LicensePlate.Insert(3, " ");
     }
 
     private void ParseOdometer()
