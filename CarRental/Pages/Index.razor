@@ -14,8 +14,9 @@
     {
         <div class="container-md @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Message: @message</div>
     }
-    <p>DataValues</p>
+    @*<p>DataValues</p>
     <div class="container-sm @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">@UserInput.DataValues</div>
+*@
 }
 <h3>Vehicles</h3>
 <div class="d-flex">
@@ -124,14 +125,14 @@ else
                                     <option value=@type.CustomerId> @type.FirstName @type.LastName</option>
                                 }
                             </select>
-                            <button class="btn btn-outline-primary"  @onclick="(() => UserInput.ev_RentVehicle(vehicleInfo.Id))" disabled="@UserInput.IsProcessing">Rent</button>
+                            <button class="btn btn-outline-primary" @onclick="(() => UserInput.ev_RentVehicle(vehicleInfo.Id))" disabled="@UserInput.IsProcessing">Rent</button>
                         </div>
                     }
                     else
                     {
                         <div class="input-group">
                             <input type="number" class="form-control flex-row" min="0" placeholder="Distance" aria-label="Dist" aria-describedby="basic-addon1" @bind="UserInput.Distance" disabled="@UserInput.IsProcessing">
-                            <button class="btn btn-outline-primary"  @onclick="(() => UserInput.ev_ReturnVehicle(vehicleInfo))" disabled="@UserInput.IsProcessing">Return</button>
+                            <button class="btn btn-outline-primary" @onclick="(() => UserInput.ev_ReturnVehicle(vehicleInfo))" disabled="@UserInput.IsProcessing">Return</button>
                         </div>
                     }
                 </td>
@@ -224,17 +225,17 @@ else
         </thead>
         <tr class="align-items-baseline">
             <td>
-                <input type="text" class="form-control" placeholder="Social Security Number" aria-label="ssn" aria-describedby="basic-addon1" @bind="UserInput.SsnString">
+                <input type="text" class="form-control" placeholder="Social Security Number" aria-label="ssn" aria-describedby="basic-addon1" @bind="UserInput.SsnString" disabled="@UserInput.IsProcessing">
             </td>
             <td>
-                <input type="text" class="form-control" placeholder="Last Name" aria-label="last" aria-describedby="basic-addon1" @bind="UserInput.LastName">
+                <input type="text" class="form-control" placeholder="Last Name" aria-label="last" aria-describedby="basic-addon1" @bind="UserInput.LastName" disabled="@UserInput.IsProcessing">
             </td>
             <td>
-                <input type="text" class="form-control" placeholder="First Name" aria-label="first" aria-describedby="basic-addon1" @bind="UserInput.FirstName">
+                <input type="text" class="form-control" placeholder="First Name" aria-label="first" aria-describedby="basic-addon1" @bind="UserInput.FirstName" disabled="@UserInput.IsProcessing">
             </td>
             <td>
                 <div>
-                    <button class="btn btn-success" @onclick="UserInput.ev_AddNewCustomer">New Client</button>
+                    <button class="btn btn-success" @onclick="UserInput.ev_AddNewCustomer" disabled="@UserInput.IsProcessing">New Client</button>
                 </div>
             </td>
 

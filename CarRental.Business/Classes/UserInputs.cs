@@ -11,16 +11,9 @@ public partial class UserInputs
 {
     private readonly BookingProcessor _bp;
     public UserInputs(BookingProcessor bp) => _bp = bp;
-
     public ValidUserInputData ValidUserInputData { get; private set; }
     public bool IsProcessing { get; set; }
-
-    public bool ToggleProcessing()
-    {
-        IsProcessing = !IsProcessing;
-        return IsProcessing;
-    }
-
+    public void ToggleProcessing() => IsProcessing = !IsProcessing;
 
     #region Feedback
 
@@ -33,7 +26,7 @@ public partial class UserInputs
     #region New Vehicle
 
     public string LicensePlate { get; set; } = string.Empty;
-    public VehicleManufacturer VehManufacturer { get; set; }
+    private VehicleManufacturer VehManufacturer { get; set; }
     public int? Odometer { get; set; }
     public double? CostKm { get; set; }
     public VehicleType? VehType { get; private set; }
@@ -43,9 +36,7 @@ public partial class UserInputs
     #endregion
 
     #region New Customer
-
     private long SocialSecurityNumber { get; set; }
-
     public string? SsnString
     {
         get => SocialSecurityNumber.ToString("000-00-0000");
@@ -54,15 +45,14 @@ public partial class UserInputs
             var parsed = ParseSsn(value);
             if (parsed.Length < 9)
             {
-                for (int i = parsed.Length - 1; i < 9; i++)
+                for (var i = parsed.Length - 1; i < 9; i++)
                     parsed += "0";
             }
-
-            if (long.TryParse(value, out long result))
+            parsed = parsed[..9];
+            if (long.TryParse(parsed, out var result))
                 SocialSecurityNumber = result;
         }
     }
-
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
 
@@ -211,6 +201,7 @@ public partial class UserInputs
         var rx = MyRegexValidLicensePlate(); //^[A-Z]{3} ?[0-9]{2}[A-z0-9]$
         if (!rx.IsMatch(LicensePlate))
             throw new ArgumentException("Not a valid Swedish License Plate");
+        if (!char.IsWhiteSpace(LicensePlate[3]) && LicensePlate[3] != ' ') return;
         var str = LicensePlate.Insert(3, " ").ToUpper();
         LicensePlate = str;
     }

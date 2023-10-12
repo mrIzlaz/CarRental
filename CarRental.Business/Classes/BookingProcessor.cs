@@ -23,6 +23,7 @@ public class BookingProcessor
 
     public async Task HandleUserInput(UserInputs inputs)
     {
+        inputs.IsProcessing = true;
         switch (inputs.ValidUserInputData)
         {
             case ValidUserInputData.Vehicle:
@@ -37,7 +38,8 @@ public class BookingProcessor
             {
                 await Task.Delay(1000);
                 var cus = inputs.GetCustomer(_db.NextPersonId);
-                _db.Add(cus);
+                if (cus == null) break;
+                _db.Add((IPerson)cus);
                 break;
             }
             case ValidUserInputData.Returning when inputs.ReturnVehicle is null || inputs.Distance is null:
@@ -51,16 +53,17 @@ public class BookingProcessor
             }
             case ValidUserInputData.Booking:
             {
-                inputs.IsProcessing = true;
                 await Task.Delay(5000);
                 var booking = _db.RentVehicle((int)inputs.RentVehicleId, (int)inputs.RentCustomerId);
                 if (booking != null) _db.Add(booking);
-                inputs.IsProcessing = false;
+
                 break;
             }
             case ValidUserInputData.None:
                 break;
         }
+
+        inputs.IsProcessing = false;
     }
 
     public IEnumerable<string> VehicleTypeNames => _db.VehicleTypeNames;
