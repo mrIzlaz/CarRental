@@ -29,7 +29,7 @@ public sealed class DataFactory
     private readonly IEnumerable<IBooking> _iBookings;
 
 
-    public DataFactory(IData db, int vehicleCount = 8, int customerCount = 4, int bookingCount = 3)
+    private DataFactory(IData db, int vehicleCount = 8, int customerCount = 4, int bookingCount = 3)
     {
         _db = db;
         _iVehicles = GenerateIVehicleList(vehicleCount);
