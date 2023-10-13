@@ -1,11 +1,10 @@
-﻿using CarRental.Common.Classes;
-
-namespace CarRental.Business.Classes;
+﻿namespace CarRental.Business.Classes;
 
 using Microsoft.AspNetCore.Components;
 using Common.Enums;
 using System.Text.RegularExpressions;
 using Common.Extensions;
+using CarRental.Common.Classes;
 
 public partial class UserInputs
 {
@@ -64,8 +63,9 @@ public partial class UserInputs
 
     #region New Booking
 
-    public int? RentCustomerId { get; private set; }
-    public int? RentVehicleId { get; private set; }
+    public readonly Dictionary<Vehicle, int> RentList = new Dictionary<Vehicle, int>();
+    public int? RentCustomer { get; private set; }
+    public Vehicle? RentVehicle { get; private set; }
 
     #endregion
 
@@ -100,10 +100,6 @@ public partial class UserInputs
         {
             InputFeedbackMessages.Add(e.Message);
         }
-
-
-        if (InputFeedbackMessages.Count != 0) return;
-        InputFeedbackMessages.Add("All Data is valid");
     }
 
     private async Task TryRent()
@@ -111,9 +107,14 @@ public partial class UserInputs
         ClearFeedbackMessage();
         try
         {
-            if (_bp.GetCustomers().All(c => c.CustomerId != RentCustomerId)) return;
+            if (RentVehicle == null) throw new Exception("Error Renting Vehicle");
+            if (!RentList.TryGetValue(RentVehicle, out var customerId)) return;
+            if (_bp.GetCustomers().All(c => c.CustomerId != customerId)) return;
+            RentCustomer = customerId;
             ValidUserInputData = ValidUserInputData.Booking;
-            await _bp.HandleUserInput(this);
+            var t = _bp.HandleUserInput(this);
+            await t;
+            RentList.Remove(RentVehicle); //Calling this
         }
         catch (Exception e)
         {
@@ -150,18 +151,18 @@ public partial class UserInputs
             ParseNames();
             ValidUserInputData = ValidUserInputData.Customer;
             await _bp.HandleUserInput(this);
+            ClearNewCustomerData();
         }
         catch (Exception e)
         {
             InputFeedbackMessages.Add(e.Message);
         }
-
-        ClearNewCustomerData();
     }
 
     public Vehicle? GetVehicle(int idNo)
     {
         if (ValidUserInputData == ValidUserInputData.Vehicle) return null;
+        if (Odometer == null || CostDay == null || CostKm == null || VehType == default) return null;
         Vehicle vehicle = VehType == VehicleType.Motorcycle
             ? new Motorcycle(idNo, LicensePlate, VehManufacturer.ToString(), (int)Odometer, (int)CostDay,
                 (double)CostKm)
@@ -171,7 +172,8 @@ public partial class UserInputs
     }
 
     public Customer? GetCustomer(int idNo) => ValidUserInputData == ValidUserInputData.Customer
-        ? new Customer(idNo, FirstName, LastName, SocialSecurityNumber, DateOnly.FromDateTime(DateTime.Today))
+        ? new Customer(idNo, FirstName ?? "", LastName ?? "", SocialSecurityNumber,
+            DateOnly.FromDateTime(DateTime.Today))
         : null;
 
 
@@ -254,9 +256,8 @@ public partial class UserInputs
     private void ParseDistance()
     {
         DataValues += $"Distance: {Distance}";
-        if (Distance is > 0 or not null) return;
-        Distance = null;
-        throw new ArgumentException("Distance for returning vehicle not valid");
+        if (Distance is not null or > 0) return;
+        Distance = 0;
     }
 
     private void ParseVehicle()
@@ -286,18 +287,17 @@ public partial class UserInputs
         OnManufacturerUpdate();
     }
 
-    public void ev_SelectClient(ChangeEventArgs e)
+    public void ev_SelectClient(ChangeEventArgs e, Vehicle vehicle)
     {
         if (e.Value is null) return;
-        if (int.TryParse(e.Value.ToString(), out int client))
-        {
-            RentCustomerId = client;
-        }
+        if (!int.TryParse(e.Value.ToString(), out var customerId)) return;
+        if (!RentList.TryAdd(vehicle, customerId))
+            RentList[vehicle] = customerId;
     }
 
-    public async Task ev_RentVehicle(int vehicle)
+    public async Task ev_RentVehicle(Vehicle vehicle)
     {
-        RentVehicleId = vehicle;
+        RentVehicle = vehicle;
         await TryRent();
     }
 
@@ -333,8 +333,8 @@ public partial class UserInputs
 
     private void ClearRentData()
     {
-        RentCustomerId = null;
-        RentVehicleId = null;
+        RentCustomer = null;
+        RentVehicle = null;
         ValidUserInputData = default;
     }
 

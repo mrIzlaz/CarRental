@@ -12,6 +12,9 @@ public class BookingProcessor
 
     public IEnumerable<Customer> GetCustomers() => _db.Get<IPerson>(p => p is Customer).Cast<Customer>();
 
+    public Customer GetCustomer(int id) =>
+        _db.Get<IPerson>(p => p is Customer).Cast<Customer>().Single(c => c.CustomerId == id);
+
     public IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default) =>
         _db.Get<Vehicle>(status == default ? null : v => v.VehicleStatus == status)
             .OrderByDescending(x => x.VehicleStatus).ToList();
@@ -53,8 +56,9 @@ public class BookingProcessor
             }
             case ValidUserInputData.Booking:
             {
+                if (inputs.RentVehicle == null || inputs.RentCustomer == null) break;
                 await Task.Delay(5000);
-                var booking = _db.RentVehicle((int)inputs.RentVehicleId, (int)inputs.RentCustomerId);
+                var booking = _db.RentVehicle(inputs.RentVehicle.Id, (int)inputs.RentCustomer);
                 if (booking != null) _db.Add(booking);
 
                 break;
