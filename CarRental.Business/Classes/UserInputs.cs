@@ -1,5 +1,4 @@
 ﻿namespace CarRental.Business.Classes;
-
 using Microsoft.AspNetCore.Components;
 using Common.Enums;
 using System.Text.RegularExpressions;
