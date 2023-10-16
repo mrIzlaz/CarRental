@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using CarRental.Common.Extensions;
 
 namespace CarRental.Data.Classes;
 
@@ -23,6 +24,27 @@ public class CollectionData : IData
     {
         _producer = new DataFactory(this);
         SeedData();
+
+        var temp = 0;
+        int? intT = 0;
+        intT = null;
+        if (intT.IsNullOrEmpty())
+            intT = 44;
+        if (intT.IsNullOrEmpty())
+            intT = 41;
+        
+        List<int> list = new();
+        if (list.IsNullOrEmpty())
+            temp++;
+        list.Add(temp);
+        if (list.IsNullOrEmpty())
+            temp++;
+        list.Clear();
+        if (list.IsNullOrEmpty())
+            temp++;
+        list = null;
+        if (list.IsNullOrEmpty())
+            temp++;
     }
 
     public IBooking? RentVehicle(int vehicleId, int customerId)

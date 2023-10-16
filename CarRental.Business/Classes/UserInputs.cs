@@ -2,11 +2,10 @@
 
 using Microsoft.AspNetCore.Components;
 using Common.Enums;
-using System.Text.RegularExpressions;
 using Common.Extensions;
 using CarRental.Common.Classes;
 
-public partial class UserInputs
+public class UserInputs
 {
     private readonly BookingProcessor _bp;
     public UserInputs(BookingProcessor bp) => _bp = bp;
@@ -43,7 +42,8 @@ public partial class UserInputs
         get => SocialSecurityNumber.ToString("000-00-0000");
         set
         {
-            var parsed = ParseSsn(value);
+            if (value == null) return;
+            var parsed = UserDataParsing.RemoveHyphensFrom(value);
             if (parsed.Length < 9)
             {
                 for (var i = parsed.Length - 1; i < 9; i++)
@@ -76,21 +76,16 @@ public partial class UserInputs
 
     #endregion
 
-    public async Task TryAddNewVehicle()
+    private async Task TryAddNewVehicle()
     {
         ClearFeedbackMessage();
         try
         {
-            ParseLicensePlate();
-            ParseManufacturer();
-            ParseVehicleType();
-            ParseOdometer();
-            ParseCostKm();
-            ParseCostDay();
-
+            LicensePlate = UserDataParsing.ParseNewVehicle(LicensePlate, Odometer, VehManufacturer, VehType,
+                CostKm, CostDay);
             ValidUserInputData = ValidUserInputData.Vehicle;
             await _bp.HandleUserInput(this);
-            ClearVehicleData();
+            ClearData();
         }
         catch (ArgumentException e)
         {
@@ -121,7 +116,7 @@ public partial class UserInputs
             InputFeedbackMessages.Add(e.Message);
         }
 
-        ClearRentData();
+        ClearData();
     }
 
     private async Task TryReturnVehicle()
@@ -129,7 +124,7 @@ public partial class UserInputs
         ClearFeedbackMessage();
         try
         {
-            ParseDistance();
+            Distance = UserDataParsing.ParseDistance(Distance);
             ParseVehicle();
             ValidUserInputData = ValidUserInputData.Returning;
             await _bp.HandleUserInput(this);
@@ -139,7 +134,7 @@ public partial class UserInputs
             InputFeedbackMessages.Add(e.Message);
         }
 
-        ClearReturnData();
+        ClearData();
     }
 
     private async Task TryAddNewCustomer()
@@ -147,11 +142,12 @@ public partial class UserInputs
         ClearFeedbackMessage();
         try
         {
-            ParseSsn();
-            ParseNames();
+            if (string.IsNullOrEmpty(SsnString) || string.IsNullOrEmpty(FirstName) ||
+                string.IsNullOrEmpty(LastName)) return;
+            UserDataParsing.ParseNewCustomer(SsnString, FirstName, LastName);
             ValidUserInputData = ValidUserInputData.Customer;
             await _bp.HandleUserInput(this);
-            ClearNewCustomerData();
+            ClearData();
         }
         catch (Exception e)
         {
@@ -179,80 +175,6 @@ public partial class UserInputs
 
     #region DataValidation
 
-    private void ParseNames()
-    {
-        DataValues += $"Name: {LastName} {FirstName}";
-        var rx = MyRegexValidNames();
-        if (FirstName != null && !rx.IsMatch(FirstName))
-            throw new ArgumentException("Not a valid First Name");
-        if (LastName != null && !rx.IsMatch(LastName))
-            throw new ArgumentException("Not a valid Last Name");
-    }
-
-    private void ParseSsn()
-    {
-        var parsedSsnString = ParseSsn(SsnString);
-        if (parsedSsnString.Length != 9)
-            throw new ArgumentException(
-                $"Social Security Number is {(parsedSsnString.Length < 9 ? " to short" : "to long")}");
-        if (parsedSsnString.Equals("000000000")) throw new ArgumentException("Please enter a Social Security Number");
-    }
-
-    private static string ParseSsn(string? ssnString) => string.Concat(ssnString!.Where(c => c != '-'));
-
-
-    private void ParseLicensePlate()
-    {
-        DataValues += $"License plate: {LicensePlate} ";
-        var rx = MyRegexValidLicensePlate(); //^[A-Z]{3} ?[0-9]{2}[A-z0-9]$
-        if (!rx.IsMatch(LicensePlate))
-            throw new ArgumentException("Not a valid Swedish License Plate");
-        LicensePlate = LicensePlate.ToUpper();
-        if (char.IsWhiteSpace(LicensePlate[3])) return;
-        LicensePlate = LicensePlate.Insert(3, " ");
-    }
-
-    private void ParseOdometer()
-    {
-        DataValues += $"Odometer: {Odometer} ";
-        if (Odometer is not (null or <= 0)) return;
-        Odometer = null;
-        throw new ArgumentException("Odometer Value incorrect");
-    }
-
-    private void ParseManufacturer()
-    {
-        DataValues += $"Manufacturer: {VehManufacturer.ToString()} ";
-        if (VehManufacturer == default)
-            throw new ArgumentException("Please select a Manufacturer");
-    }
-
-    private void ParseCostKm()
-    {
-        DataValues += $"CostKM: {CostKm} ";
-        if (CostKm is not (null or <= 0)) return;
-        CostKm = null;
-        throw new ArgumentException("CostKM Value incorrect");
-    }
-
-    private void ParseVehicleType()
-    {
-        DataValues += $"VehicleType: {VehType.ToString()} ";
-        var debugMess = VehManufacturer.ToString();
-        if (VehType != VehicleType.Motorcycle || VehManufacturer.IsMotoMaker()) return;
-        VehManufacturer = default;
-
-        throw new ArgumentException($"{debugMess} does not make motorcycles");
-    }
-
-    private void ParseCostDay()
-    {
-        DataValues += $"Cost Day: {CostDay} ";
-        if (CostDay is not (null or <= 0)) return;
-        CostDay = null;
-        throw new ArgumentException("Cost Day Value incorrect");
-    }
-
     private void ParseDistance()
     {
         DataValues += $"Distance: {Distance}";
@@ -262,7 +184,6 @@ public partial class UserInputs
 
     private void ParseVehicle()
     {
-        DataValues += $"Vehicle Returning: {ReturnVehicle?.LicencePlate}";
         if (ReturnVehicle is not null) return;
         ReturnVehicle = null;
         throw new ArgumentException("Return Vehicle missing");
@@ -325,6 +246,27 @@ public partial class UserInputs
 
     #region ClearData
 
+    private void ClearData()
+    {
+        switch (ValidUserInputData)
+        {
+            case ValidUserInputData.Customer:
+                ClearNewCustomerData();
+                break;
+            case ValidUserInputData.Vehicle:
+                ClearVehicleData();
+                break;
+            case ValidUserInputData.Booking:
+                ClearBookingData();
+                break;
+            case ValidUserInputData.Returning:
+                ClearReturnData();
+                break;
+        }
+
+        ValidUserInputData = default;
+    }
+
     private void ClearVehicleData()
     {
         LicensePlate = string.Empty;
@@ -334,7 +276,7 @@ public partial class UserInputs
         ValidUserInputData = default;
     }
 
-    private void ClearRentData()
+    private void ClearBookingData()
     {
         RentCustomer = null;
         RentVehicle = null;
@@ -355,7 +297,6 @@ public partial class UserInputs
         IsInputValid = false;
     }
 
-
     private void ClearNewCustomerData()
     {
         SocialSecurityNumber = 0;
@@ -366,12 +307,6 @@ public partial class UserInputs
     }
 
     #endregion
-
-    [GeneratedRegex("\\b(^[A-Z]{3} ?[0-9]{2}[A-z0-9]$)\\b", RegexOptions.IgnoreCase, "sv-SE")]
-    private static partial Regex MyRegexValidLicensePlate();
-
-    [GeneratedRegex(@"^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,}$")]
-    private static partial Regex MyRegexValidNames();
 }
 
 public enum ValidUserInputData
