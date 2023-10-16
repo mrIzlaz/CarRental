@@ -102,7 +102,7 @@ else
             </td>
             <td>
                 <div class="align-items-center">
-                    <button class="btn btn-outline-success" @onclick="UserInput.TryAddNewVehicle" disabled="@UserInput.IsProcessing"> Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
+                    <button class="btn btn-outline-success" @onclick="(() => UserInput.ev_AddNewCar())" disabled="@UserInput.IsProcessing"> Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
                 </div>
             </td>
             <td>
@@ -127,7 +127,7 @@ else
                     @if (vehicleInfo.VehicleStatus == VehicleStatus.Available)
                     {
                         <div class="input-group">
-                            <select class="form-select" id="RentCustomers"  value="@(UserInput.RentList.TryGetValue(vehicleInfo, out var key) ? @key : "Client")" @onchange="(e) => UserInput.ev_SelectClient(e, vehicleInfo)" disabled="@UserInput.IsProcessing">
+                            <select class="form-select" id="RentCustomers" value="@(UserInput.RentList.TryGetValue(vehicleInfo, out var key) ? @key : "Client")" @onchange="(e) => UserInput.ev_SelectClient(e, vehicleInfo)" disabled="@UserInput.IsProcessing">
                                 <option selected>Client</option>
                                 @foreach (var type in Bp.GetCustomers())
                                 {
@@ -234,17 +234,17 @@ else
         </thead>
         <tr class="align-items-baseline">
             <td>
-                <input type="text" class="form-control" placeholder="Social Security Number" aria-label="ssn" aria-describedby="basic-addon1" @bind="UserInput.SsnString" disabled="@UserInput.IsProcessing">
+                <input type="text" class="form-control" placeholder="Social Security Number" aria-label="ssn" aria-describedby="basic-addon1" @bind="UserInput.SsnString">
             </td>
             <td>
-                <input type="text" class="form-control" placeholder="Last Name" aria-label="last" aria-describedby="basic-addon1" @bind="UserInput.LastName" disabled="@UserInput.IsProcessing">
+                <input type="text" class="form-control" placeholder="Last Name" aria-label="last" aria-describedby="basic-addon1" @bind="UserInput.LastName">
             </td>
             <td>
-                <input type="text" class="form-control" placeholder="First Name" aria-label="first" aria-describedby="basic-addon1" @bind="UserInput.FirstName" disabled="@UserInput.IsProcessing">
+                <input type="text" class="form-control" placeholder="First Name" aria-label="first" aria-describedby="basic-addon1" @bind="UserInput.FirstName">
             </td>
             <td>
                 <div>
-                    <button class="btn btn-success" @onclick="UserInput.ev_AddNewCustomer" disabled="@UserInput.IsProcessing">New Client</button>
+                    <button class="btn btn-success" @onclick="UserInput.ev_AddNewCustomer">New Client</button>
                 </div>
             </td>
 

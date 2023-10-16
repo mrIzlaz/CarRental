@@ -161,7 +161,7 @@ public partial class UserInputs
 
     public Vehicle? GetVehicle(int idNo)
     {
-        if (ValidUserInputData == ValidUserInputData.Vehicle) return null;
+        if (ValidUserInputData != ValidUserInputData.Vehicle) return null;
         if (Odometer == null || CostDay == null || CostKm == null || VehType == default) return null;
         Vehicle vehicle = VehType == VehicleType.Motorcycle
             ? new Motorcycle(idNo, LicensePlate, VehManufacturer.ToString(), (int)Odometer, (int)CostDay,
@@ -272,6 +272,11 @@ public partial class UserInputs
 
     #region UserEvents
 
+    public async Task ev_AddNewCar()
+    {
+        await TryAddNewVehicle();
+    }
+
     public void ev_SelectedVehicleType(ChangeEventArgs e)
     {
         if (e.Value is null) return;
@@ -323,10 +328,8 @@ public partial class UserInputs
     private void ClearVehicleData()
     {
         LicensePlate = string.Empty;
-        VehManufacturer = default;
         Odometer = null;
         CostKm = null;
-        VehType = null;
         CostDay = null;
         ValidUserInputData = default;
     }
