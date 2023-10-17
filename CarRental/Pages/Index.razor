@@ -15,17 +15,6 @@
         <div class="container-md alert @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Message: @message</div>
     }
 }
-@*<p>DataValues</p>
-    <div class="container-sm @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">@UserInput.DataValues</div>
-}
-@if (UserInput.RentList != null || UserInput.RentList.Count != 0)
-{
-    foreach (var pair in UserInput.RentList)
-    {
-        <p>Car: @pair.Key.LicencePlate tagged with Customer ID: @Bp.GetCustomer(pair.Value).FullInfo</p> 
-    }
-}*@
-
 
 <h3>Vehicles</h3>
 <div class="d-flex">
@@ -42,6 +31,21 @@
         <label class="form-check-label" for="flexRadioDefault3">Only Available</label>
     </div>
 </div>
+
+@if (Bp == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <div class="flex-row">
+        <div class="w-80">
+            <input type="text" class="form-control" placeholder="Search..." aria-label="UserSearch" aria-describedby="basic-addon1" @bind="UserInput.UserSearch" @onactivate="() => UserInput.ev_Search()">
+        </div>
+    </div>
+}
 
 @if (Bp == null)
 {

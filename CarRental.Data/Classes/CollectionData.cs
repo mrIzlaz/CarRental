@@ -24,27 +24,6 @@ public class CollectionData : IData
     {
         _producer = new DataFactory(this);
         SeedData();
-
-        var temp = 0;
-        int? intT = 0;
-        intT = null;
-        if (intT.IsNullOrEmpty())
-            intT = 44;
-        if (intT.IsNullOrEmpty())
-            intT = 41;
-        
-        List<int> list = new();
-        if (list.IsNullOrEmpty())
-            temp++;
-        list.Add(temp);
-        if (list.IsNullOrEmpty())
-            temp++;
-        list.Clear();
-        if (list.IsNullOrEmpty())
-            temp++;
-        list = null;
-        if (list.IsNullOrEmpty())
-            temp++;
     }
 
     public IBooking? RentVehicle(int vehicleId, int customerId)
@@ -65,6 +44,14 @@ public class CollectionData : IData
         var list = GetListFrom<T>();
         if (list == null) return default;
         return func != null ? list.SingleOrDefault(func) : default;
+    }
+
+    public IEnumerable<T> SearchResult<T>(Expression<Func<T, bool>>? expression)
+    {
+        var func = expression?.Compile();
+        var list = GetListFrom<T>();
+        if (list == null) return new List<T>();
+        return func == null ? list : list.Where(func).ToList();
     }
 
     public IEnumerable<T> Get<T>(Expression<Func<T, bool>>? expression)
@@ -89,7 +76,7 @@ public class CollectionData : IData
         var list = fieldInfo.FirstOrDefault(f => f.FieldType == typeof(List<T>))?.GetValue(this) as List<T>;
         return list;
     }
-
+    
     private void SeedData()
     {
         try

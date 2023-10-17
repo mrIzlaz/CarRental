@@ -9,7 +9,6 @@ public static class UserDataParsing
     public static string ParseNewVehicle(string? licensePlate, int? odometer, VehicleManufacturer vehicleManufacturer,
         VehicleType? vehicleType, double? costKm, int? costDay)
     {
-    
         var lp = ParseLicensePlate(licensePlate);
         ParseOdometer(odometer);
         ParseManufacturer(vehicleManufacturer);
@@ -55,7 +54,7 @@ public static class UserDataParsing
 
     private static string ParseLicensePlate(string? licensePlate)
     {
-        if (licensePlate.IsNullOrEmpty()) throw new ArgumentNullException(licensePlate, "Please enter a License plate");
+        if (string.IsNullOrEmpty(licensePlate)) throw new ArgumentNullException(licensePlate, "Please enter a License plate");
         var rx = new Regex("^[A-Z]{3} ?[0-9]{2}[A-z0-9]$", RegexOptions.IgnoreCase);
         if (!rx.IsMatch(licensePlate))
             throw new ArgumentException("Not a valid Swedish License Plate");
@@ -83,9 +82,15 @@ public static class UserDataParsing
 
     private static void ParseCostDay(int? costDay)
     {
-        if (costDay.IsNullOrEmpty()) throw new ArgumentException("Cost Day Value incorrect");
-        if (costDay >= 0) return;
-        throw new ArgumentException("Cost Day Value incorrect");
+        switch (costDay)
+        {
+            case null:
+                throw new ArgumentException("Cost Day Value incorrect");
+            case >= 0:
+                return;
+            default:
+                throw new ArgumentException("Cost Day Value incorrect");
+        }
     }
 
     private static void ParseVehicleType(VehicleManufacturer vehicleManufacturer, VehicleType? vehicleType)

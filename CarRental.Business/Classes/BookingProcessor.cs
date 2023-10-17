@@ -1,4 +1,5 @@
-﻿using CarRental.Common.Classes;
+﻿using System.Linq.Expressions;
+using CarRental.Common.Classes;
 using CarRental.Common.Enums;
 using CarRental.Common.Interfaces;
 using CarRental.Data.Interfaces;
@@ -19,11 +20,9 @@ public class BookingProcessor
         _db.Get<Vehicle>(status == default ? null : v => v.VehicleStatus == status)
             .OrderByDescending(x => x.VehicleStatus).ToList();
 
-
     public IEnumerable<IBooking> GetBookings() =>
         _db.Get<IBooking>(null).OrderBy(x => x.BookingStatus);
-
-
+    
     public async Task HandleUserInput(UserInputs inputs)
     {
         inputs.IsProcessing = true;

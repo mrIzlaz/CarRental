@@ -11,8 +11,9 @@ public interface IData
     int NextVehicleId { get; }
     int NextPersonId { get; }
     int NextBookingId { get; }
-    IBooking? RentVehicle( int vehicleId, int customerId);
-    IBooking? ReturnVehicle( int vehicleId);
+    IBooking? RentVehicle(int vehicleId, int customerId);
+    IEnumerable<T> SearchResult<T>(Expression<Func<T, bool>>? expression);
+    IBooking? ReturnVehicle(int vehicleId);
     T? Single<T>(Expression<Func<T, bool>>? expression);
     IEnumerable<T> Get<T>(Expression<Func<T, bool>>? expression);
     public void Add<T>(T item);

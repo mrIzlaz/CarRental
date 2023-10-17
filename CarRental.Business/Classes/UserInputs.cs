@@ -21,6 +21,11 @@ public class UserInputs
 
     #endregion
 
+    #region Search
+    public string? UserSearch { get; set; }
+
+    #endregion
+
     #region New Vehicle
 
     public string LicensePlate { get; set; } = string.Empty;
@@ -193,6 +198,11 @@ public class UserInputs
 
     #region UserEvents
 
+    public void ev_Search()
+    {
+        if (string.IsNullOrEmpty(UserSearch)) return;
+    }
+    
     public async Task ev_AddNewCar()
     {
         await TryAddNewVehicle();
