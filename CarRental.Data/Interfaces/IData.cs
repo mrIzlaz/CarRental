@@ -12,7 +12,7 @@ public interface IData
     int NextPersonId { get; }
     int NextBookingId { get; }
     IBooking? RentVehicle(int vehicleId, int customerId);
-    IEnumerable<T> SearchResult<T>(Expression<Func<T, bool>>? expression);
+    IEnumerable<string> SearchResult<T>(string searchPrompt) where T : ISearchable;
     IBooking? ReturnVehicle(int vehicleId);
     T? Single<T>(Expression<Func<T, bool>>? expression);
     IEnumerable<T> Get<T>(Expression<Func<T, bool>>? expression);

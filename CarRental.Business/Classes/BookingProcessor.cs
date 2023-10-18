@@ -11,6 +11,8 @@ public class BookingProcessor
     private readonly IData _db;
     public BookingProcessor(IData db) => _db = db;
 
+    public SearchField SearchField = new();
+
     public IEnumerable<Customer> GetCustomers() => _db.Get<IPerson>(p => p is Customer).Cast<Customer>();
 
     public Customer GetCustomer(int id) =>
@@ -22,7 +24,12 @@ public class BookingProcessor
 
     public IEnumerable<IBooking> GetBookings() =>
         _db.Get<IBooking>(null).OrderBy(x => x.BookingStatus);
-    
+
+    public IEnumerable<string> GetSearchResults(string searchPrompt)
+    {
+        return _db.SearchResult<ISearchable>(searchPrompt);
+    }
+
     public async Task HandleUserInput(UserInputs inputs)
     {
         inputs.IsProcessing = true;

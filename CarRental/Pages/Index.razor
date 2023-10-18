@@ -42,9 +42,16 @@ else
 {
     <div class="flex-row">
         <div class="w-80">
-            <input type="text" class="form-control" placeholder="Search..." aria-label="UserSearch" aria-describedby="basic-addon1" @bind="UserInput.UserSearch" @onactivate="() => UserInput.ev_Search()">
+            <input type="text" class="form-control" placeholder="Search..." aria-label="UserSearch" aria-describedby="basic-addon1" @onchange="(e) => UserInput.ev_Search(e)">
         </div>
     </div>
+    @if (UserInput.SearchResult != null)
+    {
+        foreach (var str in UserInput.SearchResult)
+        {
+            <ul>@str</ul>
+        }
+    }
 }
 
 @if (Bp == null)

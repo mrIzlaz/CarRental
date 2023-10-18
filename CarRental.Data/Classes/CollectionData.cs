@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using CarRental.Common.Extensions;
+using Microsoft.VisualBasic;
 
 namespace CarRental.Data.Classes;
 
@@ -46,13 +48,27 @@ public class CollectionData : IData
         return func != null ? list.SingleOrDefault(func) : default;
     }
 
-    public IEnumerable<T> SearchResult<T>(Expression<Func<T, bool>>? expression)
+    public IEnumerable<string> SearchResult<T>(string searchPrompt) where T : ISearchable
     {
-        var func = expression?.Compile();
-        var list = GetListFrom<T>();
-        if (list == null) return new List<T>();
-        return func == null ? list : list.Where(func).ToList();
+        List<string> test = new();
+        FieldInfo[] fieldInfo = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+        var listResult = fieldInfo.Where(f => f.FieldType is T) as List<T>;
+
+        foreach (var VARIABLE in listResult)
+        {
+            test.Add(VARIABLE.ToString());
+        }
+        /* var list = fieldInfo.ForEach(x => 
+         {
+             
+         });
+         //if (listResult.Count > 1)
+         //    listResult.ForEach().GetValue(this);
+ */
+
+        return test;
     }
+
 
     public IEnumerable<T> Get<T>(Expression<Func<T, bool>>? expression)
     {
@@ -76,7 +92,7 @@ public class CollectionData : IData
         var list = fieldInfo.FirstOrDefault(f => f.FieldType == typeof(List<T>))?.GetValue(this) as List<T>;
         return list;
     }
-    
+
     private void SeedData()
     {
         try

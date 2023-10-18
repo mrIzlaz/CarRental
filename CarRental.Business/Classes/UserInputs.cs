@@ -22,7 +22,10 @@ public class UserInputs
     #endregion
 
     #region Search
+
     public string? UserSearch { get; set; }
+
+    public IEnumerable<string> SearchResult;
 
     #endregion
 
@@ -198,11 +201,15 @@ public class UserInputs
 
     #region UserEvents
 
-    public void ev_Search()
+    public void ev_Search(ChangeEventArgs e)
     {
-        if (string.IsNullOrEmpty(UserSearch)) return;
+        if (e.Value is null) return;
+        Enum.TryParse(e.Value.ToString(), out VehicleType type);
+        var str = e.Value.ToString();
+        if (str != null)
+            _bp.GetSearchResults(str);
     }
-    
+
     public async Task ev_AddNewCar()
     {
         await TryAddNewVehicle();

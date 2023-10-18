@@ -3,7 +3,7 @@ using CarRental.Common.Interfaces;
 
 namespace CarRental.Common.Classes;
 
-public abstract class Vehicle
+public abstract class Vehicle : ISearchable
 {
     public int Id { get; protected set; }
     public string LicencePlate { get; init; }
@@ -46,4 +46,15 @@ public abstract class Vehicle
         DayCost = dayCost;
         KmCost = kmCost;
     }
+
+    public bool MatchingThis(string prompt)
+    {
+        var matching = LicencePlate.Contains(prompt);
+        if (!matching)
+            matching = Manufacturer.Contains(prompt);
+        if (!matching)
+            matching = VehicleType.ToString().Contains(prompt);
+        return matching;
+    }
+    public string StringValue() => LicencePlate;
 }
