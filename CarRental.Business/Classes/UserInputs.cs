@@ -25,7 +25,7 @@ public class UserInputs
 
     public string? UserSearch { get; set; }
 
-    public IEnumerable<string> SearchResult;
+    public List<string>? SearchResult = new();
 
     #endregion
 
@@ -204,10 +204,13 @@ public class UserInputs
     public void ev_Search(ChangeEventArgs e)
     {
         if (e.Value is null) return;
-        Enum.TryParse(e.Value.ToString(), out VehicleType type);
         var str = e.Value.ToString();
-        if (str != null)
-            _bp.GetSearchResults(str);
+        if (!string.IsNullOrEmpty(str) && str.Length > 2 && !str.StartsWith(" "))
+        {
+            SearchResult = _bp.GetSearchResults(str).ToList();
+        }
+        else
+            SearchResult?.Clear();
     }
 
     public async Task ev_AddNewCar()

@@ -56,5 +56,7 @@ public abstract class Vehicle : ISearchable
             matching = VehicleType.ToString().Contains(prompt);
         return matching;
     }
-    public string StringValue() => LicencePlate;
+
+    public override string ToString() =>
+        $"{LicencePlate}, {Manufacturer}, {VehicleType.ToString()} Odometer: {_odometer} km, Status: {VehicleStatus.ToString()}";
 }

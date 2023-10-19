@@ -10,13 +10,9 @@ public class BookingProcessor
 {
     private readonly IData _db;
     public BookingProcessor(IData db) => _db = db;
+    public IEnumerable<Customer> GetCustomers() => _db.Get<Customer>(null);
 
-    public SearchField SearchField = new();
-
-    public IEnumerable<Customer> GetCustomers() => _db.Get<IPerson>(p => p is Customer).Cast<Customer>();
-
-    public Customer GetCustomer(int id) =>
-        _db.Get<IPerson>(p => p is Customer).Cast<Customer>().Single(c => c.CustomerId == id);
+    public Customer? GetCustomer(int id) => _db.Single<Customer>(c => c.CustomerId == id);
 
     public IEnumerable<Vehicle> GetVehicles(VehicleStatus status = default) =>
         _db.Get<Vehicle>(status == default ? null : v => v.VehicleStatus == status)
@@ -47,8 +43,8 @@ public class BookingProcessor
             {
                 await Task.Delay(1000);
                 var cus = inputs.GetCustomer(_db.NextPersonId);
-                if (cus == null) break;
-                _db.Add((IPerson)cus);
+                if (cus == null) throw new Exception("Error Adding Customer");
+                _db.Add(cus);
                 break;
             }
             case ValidUserInputData.Returning when inputs.ReturnVehicle is null || inputs.Distance is null:

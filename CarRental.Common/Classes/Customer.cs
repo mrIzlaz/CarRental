@@ -2,7 +2,7 @@
 
 namespace CarRental.Common.Classes;
 
-public class Customer : IPerson, ISearchable
+public class Customer : ISearchable, IPerson
 {
     public string FirstName { get; init; }
     public string LastName { get; init; }
@@ -39,5 +39,5 @@ public class Customer : IPerson, ISearchable
         return matching;
     }
 
-    public string StringValue() => FirstName;
+    public override string ToString() => $"{FirstName} {LastName}, {SecurityNumber}";
 }

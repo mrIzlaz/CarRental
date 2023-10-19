@@ -1,4 +1,4 @@
-﻿namespace CarRental.Business.Classes;
+﻿namespace CarRental.Common.Classes;
 
 public class SearchField
 {

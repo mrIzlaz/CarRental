@@ -32,7 +32,7 @@
     </div>
 </div>
 
-@if (Bp == null)
+@if (UserInput?.SearchResult == null)
 {
     <p>
         <em>Loading...</em>
@@ -45,13 +45,16 @@ else
             <input type="text" class="form-control" placeholder="Search..." aria-label="UserSearch" aria-describedby="basic-addon1" @onchange="(e) => UserInput.ev_Search(e)">
         </div>
     </div>
-    @if (UserInput.SearchResult != null)
-    {
-        foreach (var str in UserInput.SearchResult)
+    <div class="m-1">
+        @if (UserInput.SearchResult != null && UserInput.SearchResult.ToList().Count != 0)
         {
-            <ul>@str</ul>
+            <h4>Search Result</h4>
+            foreach (var str in UserInput.SearchResult)
+            {
+                <ul class="p-1">@str</ul>
+            }
         }
-    }
+    </div>
 }
 
 @if (Bp == null)

@@ -1,9 +1,7 @@
-﻿using System.Linq.Expressions;
-using CarRental.Common.Classes;
+﻿namespace CarRental.Data.Interfaces;
 
-namespace CarRental.Data.Interfaces;
-
-using CarRental.Common.Enums;
+using System.Linq.Expressions;
+using Common.Enums;
 using CarRental.Common.Interfaces;
 
 public interface IData

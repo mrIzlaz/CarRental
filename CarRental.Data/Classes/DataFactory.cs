@@ -2,7 +2,6 @@
 using CarRental.Common.Enums;
 using CarRental.Common.Interfaces;
 using System.Text;
-using CarRental.Data.Interfaces;
 
 namespace CarRental.Data.Classes;
 
@@ -10,7 +9,6 @@ public sealed class DataFactory
 {
     private static int NumberOfVehicleStatus => Enum.GetNames(typeof(VehicleStatus)).Length;
 
-    private IData _db;
     private int _customerId;
     private int _bookingId;
     private int _carId;
@@ -25,25 +23,19 @@ public sealed class DataFactory
     private readonly Dictionary<string, IBooking> _bookings = new();
 
     private readonly IEnumerable<Vehicle> _iVehicles;
-    private readonly IEnumerable<IPerson> _iPersons;
+    private readonly IEnumerable<Customer> _iPersons;
     private readonly IEnumerable<IBooking> _iBookings;
 
 
-    private DataFactory(IData db, int vehicleCount = 8, int customerCount = 4, int bookingCount = 3)
+    public DataFactory(int vehicleCount = 8, int customerCount = 4, int bookingCount = 3)
     {
-        _db = db;
         _iVehicles = GenerateIVehicleList(vehicleCount);
-        _iPersons = GenerateIPersonList(customerCount);
-        _iBookings = GenerateIBookingsList(_iPersons.Cast<Customer>().ToList(), _iVehicles.ToList(), bookingCount);
-    }
-
-    public DataFactory(IData db) : this(db, 8, 4, 3)
-    {
-        _db = db;
+        _iPersons = GenerateCustomerList(customerCount);
+        _iBookings = GenerateIBookingsList(_iPersons.ToList(), _iVehicles.ToList(), bookingCount);
     }
 
     public IEnumerable<Vehicle> GetVehicles() => _iVehicles;
-    public IEnumerable<IPerson> GetPersons() => _iPersons;
+    public IEnumerable<Customer> GetPersons() => _iPersons;
     public IEnumerable<IBooking> GetBookings() => _iBookings;
 
 
@@ -79,7 +71,7 @@ public sealed class DataFactory
     }
 
 
-    private IEnumerable<IPerson> GenerateIPersonList(int numberOfPersons = 4)
+    private IEnumerable<Customer> GenerateCustomerList(int numberOfPersons = 4)
     {
         if (numberOfPersons < 1)
             throw new Exception($"numberOfPersons needs to have at least 1, had {numberOfPersons}");
@@ -96,7 +88,7 @@ public sealed class DataFactory
             "Kimi", "Clarkson", "Edelblomberg", "Booker", "Crook", "Smoker", "Webber", "Ramsey"
         };
 
-        var list = new List<IPerson>();
+        var list = new List<Customer>();
 
         try
         {
@@ -205,7 +197,7 @@ public sealed class DataFactory
     {
         var rnd = new Random();
         var customer = customers[rnd.Next(customers.Count - 1)];
-        foreach (var booking in _bookings.Where(booking => booking.Value.Customer.CustomerId == customer.CustomerId))
+        foreach (var unused in _bookings.Where(booking => booking.Value.Customer.CustomerId == customer.CustomerId))
         {
             customer = customers[rnd.Next(customers.Count - 1)];
         }
