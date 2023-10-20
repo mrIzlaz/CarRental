@@ -4,7 +4,7 @@ using CarRental.Common.Interfaces;
 
 namespace CarRental.Common.Classes;
 
-public class Booking : IBooking
+public class Booking : IBooking, ISearchable
 {
     public bool IsActive { get; set; }
     public int BookingId { get; set; }
@@ -61,5 +61,15 @@ public class Booking : IBooking
         if (dif < 0) return false;
         Vehicle.Odometer = dif;
         return true;
+    }
+
+    public bool IsMatchingThis(string prompt)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override string ToString()
+    {
+        return $"{(IsActive ? "Active" : "Closed")} Booking: {Vehicle.ToString()} by Customer: {Customer.ToString()} {(IsActive ? "Start Date: "+StartDate.ToShortDateString() : "")}";
     }
 }

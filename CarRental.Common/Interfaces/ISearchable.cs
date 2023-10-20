@@ -9,7 +9,7 @@ public interface ISearchable
     public bool IsMatchingThis<T>(string prompt) where T : ISearchable
     {
         // Get the type of the class T
-        var type = typeof(T);
+        Type type = typeof(T);
         // Get all the properties of the class T that implement ISearchable
         var searchableProperties = type.GetProperties()
             .Where(prop => prop.PropertyType == typeof(string) && prop.GetCustomAttributes(typeof(ISearchable), false).Any());
