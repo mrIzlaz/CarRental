@@ -8,6 +8,7 @@
 
 <h1>Car Rental Assignment G</h1>
 
+<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.UserInputError.Clear())">Error clear</button>
 
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.ToggleProcessing())">Toggle Button Disable</button>
 @if (UserInput.InputFeedbackMessages.Count != 0)
@@ -97,7 +98,7 @@ else
             </td>
             <td>
                 <div class="input-group">
-                    <select class="form-select" id="inputGroupSelect02" @onchange="UserInput.ev_SelectedVehicleType" disabled="@UserInput.IsProcessing">
+                    <select class="form-select @testFocusMethod(UserInput.UserInputError.VehicleTypeError)" id="inputGroupSelect02" @onchange="UserInput.ev_SelectedVehicleType" disabled="@UserInput.IsProcessing">
                         <option selected>Vehicle Type</option>
                         @foreach (var type in Bp.VehicleTypeNames)
                         {
@@ -107,11 +108,11 @@ else
                 </div>
             </td>
             <td>
-                <input type="number" class="form-control" min="0.2" max="100" step="0.1" placeholder="Cost Km" aria-label="CostKm" aria-describedby="basic-addon1" @bind="UserInput.CostKm" disabled="@UserInput.IsProcessing">
+                <input type="number" class="form-control @testFocusMethod(UserInput.UserInputError.CostKmError)" min="0.2" max="100" step="0.1" placeholder="Cost Km" aria-label="CostKm" aria-describedby="basic-addon1" @bind="UserInput.CostKm" disabled="@UserInput.IsProcessing">
             </td>
 
             <td>
-                <input type="number" class="form-control" placeholder="Cost Day" min="10" max="1000" step="10" aria-label="CostDay" aria-describedby="basic-addon1" @bind="UserInput.CostDay" disabled="@UserInput.IsProcessing">
+                <input type="number" class="form-control @testFocusMethod(UserInput.UserInputError.CostDayError)" placeholder="Cost Day" min="10" max="1000" step="10" aria-label="CostDay" aria-describedby="basic-addon1" @bind="UserInput.CostDay" disabled="@UserInput.IsProcessing">
             </td>
             <td>
                 <div class="align-items-center">

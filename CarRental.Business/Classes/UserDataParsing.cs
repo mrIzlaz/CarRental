@@ -30,9 +30,23 @@ public static class UserDataParsing
             errorMessageTest += " Select a manufacturer ";
             error.ManufacturerError = true;
         } ;
-        if (ParseVehicleType(vehicleManufacturer, vehicleType)) errorMessageTest += " Please select a Vehicle Type ";
-        if (ParseCostDay(costDay)) errorMessageTest += " Invalid cost/day ";
-        if (ParseCostKm(costKm)) errorMessageTest += " CostKM Value incorrect ";
+        if (ParseVehicleType(vehicleManufacturer, vehicleType))
+        {
+            errorMessageTest += " Please select a Vehicle Type ";
+            error.VehicleTypeError = true;
+        }
+
+        if (ParseCostDay(costDay))
+        {
+            errorMessageTest += " Invalid cost/day ";
+            error.CostDayError = true;
+        }
+
+        if (ParseCostKm(costKm))
+        {
+            errorMessageTest += " CostKM Value incorrect ";
+            error.CostKmError = true;
+        }
 
         Console.WriteLine(errorMessageTest);
 
@@ -101,7 +115,7 @@ public static class UserDataParsing
 
     private static bool ParseCostKm(double? costKm)
     {
-        if (costKm >= 0d) return false;
+        if (costKm > 0d) return false;
         return true;
         //throw new ArgumentException("CostKM Value incorrect");
     }
@@ -113,7 +127,7 @@ public static class UserDataParsing
             case null:
                 return true;
                 //throw new ArgumentException("Cost Day Value incorrect");
-            case >= 0:
+            case > 0:
                 return false;
             default:
                 return true;
