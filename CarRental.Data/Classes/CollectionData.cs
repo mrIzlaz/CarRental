@@ -21,7 +21,7 @@ public class CollectionData : IData
 
     public CollectionData()
     {
-        _producer = new ();
+        _producer = new();
         SeedData();
     }
 
@@ -137,7 +137,6 @@ public class CollectionData : IData
     public IEnumerable<string> SearchResult<T>(string searchPrompt) where T : ISearchable
     {
         List<string> searchResults = new List<string>();
-
         FieldInfo[] fieldInfo = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
         foreach (FieldInfo field in fieldInfo)
@@ -148,15 +147,16 @@ public class CollectionData : IData
                 Type listType = field.FieldType.GetGenericArguments()[0];
 
                 // Check if the generic type (listType) or any of its interfaces implement ISearchable
-                if (typeof(ISearchable).IsAssignableFrom(listType) ||
-                    listType.GetInterfaces().Any(i => i == typeof(ISearchable)))
-                {
-                    var list = (IEnumerable)field.GetValue(this);
+                if (!typeof(ISearchable).IsAssignableFrom(listType) &&
+                    listType.GetInterfaces().All(i => i != typeof(ISearchable))) continue;
+                var list = (IEnumerable)field.GetValue(this)!;
 
-                    // Filter items that implement ISearchable and match the search criteria
-                    searchResults.AddRange(list.Cast<ISearchable>().Where(item => item.MatchingThis(searchPrompt))
-                        .Select(item => item.ToString()));
-                }
+                // Filter items that implement ISearchable and match the search criteria
+                /*searchResults.AddRange(list.Cast<ISearchable>().Where(item => item.IsMatchingThis(searchPrompt))
+                    .Select(item => item.ToString()));
+*/
+                searchResults.AddRange(list.Cast<ISearchable>().Where(item => item.IsMatchingThis<T>(searchPrompt))
+                    .Select(item => item.ToString()));
             }
         }
 

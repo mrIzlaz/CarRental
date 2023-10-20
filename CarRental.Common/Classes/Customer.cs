@@ -29,13 +29,14 @@ public class Customer : ISearchable, IPerson
         CustomerId = customerId;
     }
 
-    public bool MatchingThis(string prompt)
+    public bool IsMatchingThis(string prompt)
     {
-        var matching = FirstName.Contains(prompt);
+        var str = prompt.ToLower();
+        var matching = FirstName.ToLower().Contains(str);
         if (!matching)
-            matching = LastName.Contains(prompt);
+            matching = LastName.ToLower().Contains(str);
         if (!matching)
-            matching = SecurityNumber.Contains(prompt);
+            matching = SecurityNumber.ToLower().Contains(str);
         return matching;
     }
 

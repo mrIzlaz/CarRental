@@ -5,7 +5,7 @@ namespace CarRental.Common.Classes;
 
 public abstract class Vehicle : ISearchable
 {
-    public int Id { get; protected set; }
+    public int Id { get; protected init; }
     public string LicencePlate { get; init; }
     public string Manufacturer { get; init; }
     public VehicleType VehicleType { get; init; }
@@ -29,13 +29,7 @@ public abstract class Vehicle : ISearchable
         Id = id;
     }
 
-    protected Vehicle(int id, Vehicle veh) : this(veh.LicencePlate, veh.Manufacturer, veh.Odometer, veh.VehicleType,
-        veh.DayCost, veh.KmCost)
-    {
-        Id = id;
-    }
-
-    protected Vehicle(string licencePlate, string manufacturer, int odometer, VehicleType vehicleType,
+    private Vehicle(string licencePlate, string manufacturer, int odometer, VehicleType vehicleType,
         int dayCost, double kmCost)
     {
         LicencePlate = licencePlate;
@@ -47,13 +41,14 @@ public abstract class Vehicle : ISearchable
         KmCost = kmCost;
     }
 
-    public bool MatchingThis(string prompt)
+    public bool IsMatchingThis(string prompt)
     {
-        var matching = LicencePlate.Contains(prompt);
+        var str = prompt.ToLower();
+        var matching = LicencePlate.ToLower().Contains(str);
         if (!matching)
-            matching = Manufacturer.Contains(prompt);
+            matching = Manufacturer.ToLower().Contains(str);
         if (!matching)
-            matching = VehicleType.ToString().Contains(prompt);
+            matching = VehicleType.ToString().ToLower().Contains(str);
         return matching;
     }
 

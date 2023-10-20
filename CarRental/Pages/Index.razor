@@ -6,7 +6,7 @@
 
 <PageTitle>Car Rental</PageTitle>
 
-<h1>Car Rental Assignment G</h1>
+<h1>Car Rental</h1>
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.ToggleProcessing())">Toggle Button Disable</button>
 @if (UserInput.InputFeedbackMessages.Count != 0)
 {
@@ -42,7 +42,7 @@ else
 {
     <div class="flex-row">
         <div class="w-80">
-            <input type="text" class="form-control" placeholder="Search..." aria-label="UserSearch" aria-describedby="basic-addon1" @onchange="(e) => UserInput.ev_Search(e)">
+            <input type="text" class="form-control" placeholder="Search..." aria-label="UserSearch" aria-describedby="basic-addon1" @oninput="(e) => UserInput.ev_Search(e)">
         </div>
     </div>
     <div class="m-1">

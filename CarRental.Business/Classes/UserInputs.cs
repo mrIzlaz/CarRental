@@ -205,7 +205,7 @@ public class UserInputs
     {
         if (e.Value is null) return;
         var str = e.Value.ToString();
-        if (!string.IsNullOrEmpty(str) && str.Length > 2 && !str.StartsWith(" "))
+        if (!string.IsNullOrEmpty(str) && str.Length >= 2 && !str.StartsWith(" "))
         {
             SearchResult = _bp.GetSearchResults(str).ToList();
         }
