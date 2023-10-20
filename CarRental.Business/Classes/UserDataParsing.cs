@@ -1,4 +1,5 @@
-﻿using CarRental.Common.Enums;
+﻿using System.Reflection.Metadata.Ecma335;
+using CarRental.Common.Enums;
 using CarRental.Common.Extensions;
 using System.Text.RegularExpressions;
 
@@ -7,17 +8,37 @@ namespace CarRental.Business.Classes;
 public static class UserDataParsing
 {
     public static string ParseNewVehicle(string? licensePlate, int? odometer, VehicleManufacturer vehicleManufacturer,
-        VehicleType? vehicleType, double? costKm, int? costDay)
+        VehicleType? vehicleType, double? costKm, int? costDay, UserInputError error)
     {
+        string errorMessageTest = string.Empty;
+
         var lp = ParseLicensePlate(licensePlate);
-        ParseOdometer(odometer);
-        ParseManufacturer(vehicleManufacturer);
-        ParseVehicleType(vehicleManufacturer, vehicleType);
-        ParseCostDay(costDay);
-        ParseCostKm(costKm);
+        if (lp == null)
+        {
+            errorMessageTest += " Not a valid Swedish License Plate console ";
+            error.LicenseError = true;
+        }
+
+        if (ParseOdometer(odometer))
+        {
+            errorMessageTest += " Odometer Value incorrect ";
+            error.OdometerError = true;
+        }
+
+        if (ParseManufacturer(vehicleManufacturer))
+        {
+            errorMessageTest += " Select a manufacturer ";
+            error.ManufacturerError = true;
+        } ;
+        if (ParseVehicleType(vehicleManufacturer, vehicleType)) errorMessageTest += " Please select a Vehicle Type ";
+        if (ParseCostDay(costDay)) errorMessageTest += " Invalid cost/day ";
+        if (ParseCostKm(costKm)) errorMessageTest += " CostKM Value incorrect ";
+
+        Console.WriteLine(errorMessageTest);
 
         return lp;
     }
+
 
     public static void ParseNewCustomer(string ssnString, string firstName, string lastName)
     {
@@ -52,52 +73,59 @@ public static class UserDataParsing
 
     #region New Vehicle
 
-    private static string ParseLicensePlate(string? licensePlate)
+    private static string? ParseLicensePlate(string? licensePlate)
     {
         if (string.IsNullOrEmpty(licensePlate)) throw new ArgumentNullException(licensePlate, "Please enter a License plate");
         var rx = new Regex("^[A-Z]{3} ?[0-9]{2}[A-z0-9]$", RegexOptions.IgnoreCase);
         if (!rx.IsMatch(licensePlate))
-            throw new ArgumentException("Not a valid Swedish License Plate");
+            return null;
+            //throw new ArgumentException("Not a valid Swedish License Plate");
         licensePlate = licensePlate.ToUpper();
         return char.IsWhiteSpace(licensePlate[3]) ? licensePlate : licensePlate.Insert(3, " ");
     }
 
-    private static void ParseOdometer(int? odometer)
+    private static bool ParseOdometer(int? odometer)
     {
-        if (odometer >= 0) return;
-        throw new ArgumentException("Odometer Value incorrect");
+        if (odometer >= 0) return false;
+        return true;
+        //throw new ArgumentException("Odometer Value incorrect");
     }
 
-    private static void ParseManufacturer(VehicleManufacturer vehicleManufacturer)
+    private static bool ParseManufacturer(VehicleManufacturer vehicleManufacturer)
     {
-        if (vehicleManufacturer == default)
-            throw new ArgumentException("Please select a Manufacturer");
+        if (vehicleManufacturer == default) return true;
+        return false;
+
+        //throw new ArgumentException("Please select a Manufacturer");
     }
 
-    private static void ParseCostKm(double? costKm)
+    private static bool ParseCostKm(double? costKm)
     {
-        if (costKm >= 0d) return;
-        throw new ArgumentException("CostKM Value incorrect");
+        if (costKm >= 0d) return false;
+        return true;
+        //throw new ArgumentException("CostKM Value incorrect");
     }
 
-    private static void ParseCostDay(int? costDay)
+    private static bool ParseCostDay(int? costDay)
     {
         switch (costDay)
         {
             case null:
-                throw new ArgumentException("Cost Day Value incorrect");
+                return true;
+                //throw new ArgumentException("Cost Day Value incorrect");
             case >= 0:
-                return;
+                return false;
             default:
-                throw new ArgumentException("Cost Day Value incorrect");
+                return true;
+                //throw new ArgumentException("Cost Day Value incorrect");
         }
     }
 
-    private static void ParseVehicleType(VehicleManufacturer vehicleManufacturer, VehicleType? vehicleType)
+    private static bool ParseVehicleType(VehicleManufacturer vehicleManufacturer, VehicleType? vehicleType)
     {
         var debugMess = vehicleManufacturer.ToString();
-        if (vehicleType == null) throw new ArgumentException("Please select a Vehicle Type");
-        if (vehicleType != VehicleType.Motorcycle || vehicleManufacturer.IsMotoMaker()) return;
+        if (vehicleType == null) return true; //throw new ArgumentException("Please select a Vehicle Type");
+        if (vehicleType != VehicleType.Motorcycle || vehicleManufacturer.IsMotoMaker()) return false;
         throw new ArgumentException($"{debugMess} does not make motorcycles");
     }
 

@@ -7,6 +7,8 @@
 <PageTitle>Car Rental</PageTitle>
 
 <h1>Car Rental Assignment G</h1>
+
+
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.ToggleProcessing())">Toggle Button Disable</button>
 @if (UserInput.InputFeedbackMessages.Count != 0)
 {
@@ -77,14 +79,14 @@ else
         </thead>
         <tr>
             <td class="w-10">
-                <input type="text" class="form-control" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate " disabled="@UserInput.IsProcessing">
+                <input type="text" class="form-control @testFocusMethod(UserInput.UserInputError.LicenseError)" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate " disabled="@UserInput.IsProcessing">
             </td>
             <td class="w-10">
-                <input type="number" class="form-control" min="0" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1" @bind="UserInput.Odometer" disabled="@UserInput.IsProcessing">
+                <input type="number" class="form-control @testFocusMethod(UserInput.UserInputError.OdometerError)" min="0" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1" @bind="UserInput.Odometer" disabled="@UserInput.IsProcessing">
             </td>
             <td>
                 <div class="input-group">
-                    <select class="form-select" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged" disabled="@UserInput.IsProcessing">
+                    <select class="form-select @testFocusMethod(UserInput.UserInputError.ManufacturerError)" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged" disabled="@UserInput.IsProcessing">
                         <option selected>Manufacturer</option>
                         @foreach (var type in Bp.VehicleManufacturer)
                         {
@@ -277,7 +279,12 @@ else
 }
 @code {
 
-    // testkommentar.
-    // testkommentar 2.
+    bool testFocus = false;
+
+    public string? testFocusMethod(bool error)
+    {
+        if (error) return "focusedInput";
+        return null;
+    }
 
 }

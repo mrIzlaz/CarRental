@@ -38,6 +38,7 @@ public class UserInputs
     public VehicleType? VehType { get; private set; }
     public int? CostDay { get; set; }
     public VehicleStatus VisibleVehicle { get; set; }
+    public UserInputError UserInputError { get; set; } = new();
 
     #endregion
 
@@ -90,7 +91,7 @@ public class UserInputs
         try
         {
             LicensePlate = UserDataParsing.ParseNewVehicle(LicensePlate, Odometer, VehManufacturer, VehType,
-                CostKm, CostDay);
+                CostKm, CostDay, UserInputError);
             ValidUserInputData = ValidUserInputData.Vehicle;
             await _bp.HandleUserInput(this);
             ClearData();
