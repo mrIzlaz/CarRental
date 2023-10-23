@@ -10,8 +10,8 @@ public static class UserDataParsing
     public static string ParseNewVehicle(string? licensePlate, int? odometer, VehicleManufacturer vehicleManufacturer,
         VehicleType? vehicleType, double? costKm, int? costDay, UserInputError error)
     {
-        var lp = ParseLicensePlate(licensePlate);
-        if (lp == null) error.LicenseError = true;
+        var (lp, boolValue) = ParseLicensePlate(licensePlate);
+        if (boolValue) error.LicenseError = true;
         if (ParseOdometer(odometer)) error.OdometerError = true;
         if (ParseManufacturer(vehicleManufacturer)) error.ManufacturerError = true;
         if (ParseVehicleType(vehicleManufacturer, vehicleType)) error.VehicleTypeError = true;
@@ -54,15 +54,14 @@ public static class UserDataParsing
 
     #region New Vehicle
 
-    private static string? ParseLicensePlate(string? licensePlate)
+    private static (string?, bool) ParseLicensePlate(string? licensePlate)
     {
-        if (string.IsNullOrEmpty(licensePlate)) return null;//throw new ArgumentNullException(licensePlate, "Please enter a License plate");
+        if (string.IsNullOrEmpty(licensePlate)) return (null, true);
         var rx = new Regex("^[A-Z]{3} ?[0-9]{2}[A-z0-9]$", RegexOptions.IgnoreCase);
         if (!rx.IsMatch(licensePlate))
-            return null;
-        //throw new ArgumentException("Not a valid Swedish License Plate");
+            return (licensePlate, true);
         licensePlate = licensePlate.ToUpper();
-        return char.IsWhiteSpace(licensePlate[3]) ? licensePlate : licensePlate.Insert(3, " ");
+        return (char.IsWhiteSpace(licensePlate[3]) ? licensePlate : licensePlate.Insert(3, " "), false);
     }
 
     private static bool ParseOdometer(int? odometer)

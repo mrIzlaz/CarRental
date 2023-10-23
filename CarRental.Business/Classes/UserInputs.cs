@@ -110,7 +110,6 @@ public class UserInputs
                 CostKm, CostDay, UserInputError);
             FeedbackMessageAdd(UserInputError.ErrorMessages());
             if (InputFeedbackMessages.Count > 0) return;
-            //if (InputFeedbackMessages.Count == 0) AfterCarRented = false;
             ValidUserInputData = ValidUserInputData.Vehicle;
             await _bp.HandleUserInput(this);
             ClearData();
@@ -313,7 +312,7 @@ public class UserInputs
 
     private void ClearVehicleData()
     {
-        if (AfterCarRented == false) LicensePlate = string.Empty;
+        LicensePlate = string.Empty;
         Odometer = null;
         CostKm = null;
         CostDay = null;
