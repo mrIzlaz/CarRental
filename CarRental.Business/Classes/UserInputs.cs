@@ -313,7 +313,7 @@ public class UserInputs
 
     private void ClearVehicleData()
     {
-        LicensePlate = string.Empty;
+        if (AfterCarRented == false) LicensePlate = string.Empty;
         Odometer = null;
         CostKm = null;
         CostDay = null;
