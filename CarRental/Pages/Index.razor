@@ -84,7 +84,6 @@ else
         </thead>
         <tr>
             <td class="w-10">
-                @*<input type="text" class="form-control @(UserInput.UserInputError.LicenseError ? "focusedInput" : false)" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate" @bind:event="oninput" disabled="@UserInput.IsProcessing">*@
                 <input type="text" class="form-control @(UserInput.UserInputError.LicenseError ? "focusedInput" : false)" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate"  @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
             </td>
             <td class="w-10">
@@ -121,7 +120,6 @@ else
             </td>
             <td>
                 <div class="align-items-center">
-                    @*<button class="btn btn-outline-success" @onclick="(() => UserInput.ev_AddNewCar())" disabled="@UserInput.IsProcessing"> Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>*@
                     <button class="btn btn-outline-success" @onclick="@( () => UserInput.ev_AddNewCar())" disabled="@UserInput.IsProcessing"> Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
                 </div>
             </td>
