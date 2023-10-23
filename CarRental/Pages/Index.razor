@@ -15,7 +15,7 @@
     <div class="container-md alert w-50 @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Errors: 
         <div>@foreach (var message in UserInput.InputFeedbackMessages)
     {
-                <div>* @message <br /></div>
+                <div>• @message <br /></div>
     }
         </div>
         <div class="navbarclear align-items-center justify-content-center">
