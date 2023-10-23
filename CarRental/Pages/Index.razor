@@ -15,10 +15,10 @@
     <div class="container-md alert w-50 @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Errors: 
         <div>@foreach (var message in UserInput.InputFeedbackMessages)
     {
-                <p>* @message <br /></p>
+                <div>* @message <br /></div>
     }
         </div>
-        <div class="navbartest align-items-center justify-content-center">
+        <div class="navbarclear align-items-center justify-content-center">
             <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => { UserInput.ClearFeedbackMessage(); UserInput.AfterCarRented = false; })">Clear</button></div>
     </div>
 }
