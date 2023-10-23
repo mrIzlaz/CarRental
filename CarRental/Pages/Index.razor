@@ -91,7 +91,17 @@ else
             </td>
             <td>
                 <div class="input-group">
-                    <select class="form-select @(UserInput.UserInputError.ManufacturerError ? "focusedInput" : false)" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged" @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
+                    <select class="form-select @(UserInput.UserInputError.ManufacturerError ? "focusedInput" : false)" id="inputGroupSelect01" 
+                    @onchange="(ChangeEventArgs e) =>
+                    {
+                        UserInput.ev_SelectedManufacturerChanged(e);
+                        if (UserInput.AfterCarRented)
+                        {
+                            UserInput.ev_AddNewCar();
+                        }
+                    }"
+                        disabled="@UserInput.IsProcessing">
+                    @*<select class="form-select @(UserInput.UserInputError.ManufacturerError ? "focusedInput" : false)" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged" @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">*@
                         <option selected>Manufacturer</option>
                         @foreach (var type in Bp.VehicleManufacturer)
                         {
@@ -102,7 +112,14 @@ else
             </td>
             <td>
                 <div class="input-group">
-                    <select class="form-select @(UserInput.UserInputError.VehicleTypeError ? "focusedInput" : false)" id="inputGroupSelect02" @onchange="UserInput.ev_SelectedVehicleType" @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
+                    <select class="form-select @(UserInput.UserInputError.VehicleTypeError ? "focusedInput" : false)" id="inputGroupSelect02" @onchange="(ChangeEventArgs e) =>
+                    {
+                        UserInput.ev_SelectedVehicleType(e);
+                        if (UserInput.AfterCarRented)
+                        {
+                            UserInput.ev_AddNewCar();
+                        }
+                    }" disabled="@UserInput.IsProcessing">
                         <option selected>Vehicle Type</option>
                         @foreach (var type in Bp.VehicleTypeNames)
                         {

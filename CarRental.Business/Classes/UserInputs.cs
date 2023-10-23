@@ -91,6 +91,16 @@ public class UserInputs
 
     #endregion
 
+    public async Task<bool> TestTryAddVehicle()
+    {
+        ClearFeedbackMessage();
+        LicensePlate = UserDataParsing.ParseNewVehicle(LicensePlate, Odometer, VehManufacturer, VehType,
+            CostKm, CostDay, UserInputError);
+        FeedbackMessageAdd(UserInputError.ErrorMessages());
+        if (InputFeedbackMessages.Count > 0) return true;
+        return false;
+    }
+
     private async Task TryAddNewVehicle()
     {
         ClearFeedbackMessage();
@@ -100,6 +110,7 @@ public class UserInputs
                 CostKm, CostDay, UserInputError);
             FeedbackMessageAdd(UserInputError.ErrorMessages());
             if (InputFeedbackMessages.Count > 0) return;
+            //if (InputFeedbackMessages.Count == 0) AfterCarRented = false;
             ValidUserInputData = ValidUserInputData.Vehicle;
             await _bp.HandleUserInput(this);
             ClearData();
@@ -221,8 +232,14 @@ public class UserInputs
 
     public async Task ev_AddNewCar()
     {
+        if (InputFeedbackMessages.Count > 0)
+        {
+            TestTryAddVehicle();
+            return;
+        }
         await TryAddNewVehicle();
         AfterCarRented = true;
+        if (InputFeedbackMessages.Count == 0) AfterCarRented = false;
     }
 
     public void ev_SelectedVehicleType(ChangeEventArgs e)
