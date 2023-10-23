@@ -19,6 +19,11 @@ public class UserInputs
     public readonly List<string> InputFeedbackMessages = new();
     public string DataValues = string.Empty;
 
+    public void FeedbackMessageAdd(List<string> errorMessages)
+    {
+        InputFeedbackMessages.AddRange(errorMessages);
+    }
+
     #endregion
 
     #region Search
@@ -92,6 +97,8 @@ public class UserInputs
         {
             LicensePlate = UserDataParsing.ParseNewVehicle(LicensePlate, Odometer, VehManufacturer, VehType,
                 CostKm, CostDay, UserInputError);
+            FeedbackMessageAdd(UserInputError.ErrorMessages());
+            if (LicensePlate == null) return;
             ValidUserInputData = ValidUserInputData.Vehicle;
             await _bp.HandleUserInput(this);
             ClearData();
@@ -313,6 +320,7 @@ public class UserInputs
         InputFeedbackMessages.Clear();
         DataValues = string.Empty;
         IsInputValid = false;
+        UserInputError.Clear();
     }
 
     private void ClearNewCustomerData()

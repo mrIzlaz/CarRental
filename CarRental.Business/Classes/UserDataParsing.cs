@@ -10,46 +10,14 @@ public static class UserDataParsing
     public static string ParseNewVehicle(string? licensePlate, int? odometer, VehicleManufacturer vehicleManufacturer,
         VehicleType? vehicleType, double? costKm, int? costDay, UserInputError error)
     {
-        string errorMessageTest = string.Empty;
-
         var lp = ParseLicensePlate(licensePlate);
-        if (lp == null)
-        {
-            errorMessageTest += " Not a valid Swedish License Plate console ";
-            error.LicenseError = true;
-        }
-
-        if (ParseOdometer(odometer))
-        {
-            errorMessageTest += " Odometer Value incorrect ";
-            error.OdometerError = true;
-        }
-
-        if (ParseManufacturer(vehicleManufacturer))
-        {
-            errorMessageTest += " Select a manufacturer ";
-            error.ManufacturerError = true;
-        } ;
-        if (ParseVehicleType(vehicleManufacturer, vehicleType))
-        {
-            errorMessageTest += " Please select a Vehicle Type ";
-            error.VehicleTypeError = true;
-        }
-
-        if (ParseCostDay(costDay))
-        {
-            errorMessageTest += " Invalid cost/day ";
-            error.CostDayError = true;
-        }
-
-        if (ParseCostKm(costKm))
-        {
-            errorMessageTest += " CostKM Value incorrect ";
-            error.CostKmError = true;
-        }
-
-        Console.WriteLine(errorMessageTest);
-
+        if (lp == null) error.LicenseError = true;
+        if (ParseOdometer(odometer)) error.OdometerError = true;
+        if (ParseManufacturer(vehicleManufacturer)) error.ManufacturerError = true;
+        if (ParseVehicleType(vehicleManufacturer, vehicleType)) error.VehicleTypeError = true;
+        if (ParseCostDay(costDay)) error.CostDayError = true;
+        if (ParseCostKm(costKm)) error.CostKmError = true;
+        if (error.IfAnyError()) return null;
         return lp;
     }
 

@@ -26,5 +26,22 @@ namespace CarRental.Business.Classes;
             CostKmError = false;
         }
 
+        public List<string> ErrorMessages()
+        {
+            List<string> errorList = new();
+            if (LicenseError) errorList.Add("Not a valid Swedish License Plate");
+            if (OdometerError) errorList.Add("Odometer Value incorrect");
+            if (ManufacturerError) errorList.Add("Select a manufacturer");
+            if (VehicleTypeError) errorList.Add("Select a Vehicle Type");
+            if (CostDayError) errorList.Add("Invalid cost/day");
+            if (CostKmError) errorList.Add("CostKM Value incorrect");
+            return errorList;
+        }
+
+        public bool IfAnyError()
+        {   
+            if (LicenseError || OdometerError || ManufacturerError || VehicleTypeError || CostDayError || CostKmError) return true;
+            return false;
+        }
     }
 
