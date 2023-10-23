@@ -6,16 +6,16 @@ public interface ISearchable
 {
     public bool IsMatchingThis(string prompt);
 
-    public bool IsMatchingThis<T>(string prompt) where T : ISearchable
+    public bool IsMatchingThis<T>(string prompt)
     {
         // Get the type of the class T
         Type type = typeof(T);
+        //Console.WriteLine(type.ToString());
 
-        var debug1 = type.ToString();
         var fieldinfo = type.GetFields(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance);
-        
-        
-        
+
+        //var list = fieldinfo.Where(f => f.)
+
         // Get all the properties of the class T that implement ISearchable
         var searchableProperties = type.GetProperties()
             .Where(prop =>
@@ -35,6 +35,5 @@ public interface ISearchable
         return false;
     }
 
-
-    public string ToString();
+    public abstract string ToString();
 }

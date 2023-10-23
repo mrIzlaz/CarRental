@@ -1,4 +1,6 @@
-﻿namespace CarRental.Data.Classes;
+﻿using CarRental.Common.Extensions;
+
+namespace CarRental.Data.Classes;
 
 using System.Collections;
 using System.Linq.Expressions;
@@ -74,7 +76,7 @@ public class CollectionData : IData
 
 
         return test;
-    }
+    } */
     public IEnumerable<string> SearchResult<T>(string searchPrompt) where T : ISearchable //This works
     {
         List<string> searchResults = new List<string>();
@@ -96,70 +98,40 @@ public class CollectionData : IData
 
                     // Filter items of type T from the list and apply the search
                     // Then select the string representation of matching items
-                    searchResults.AddRange(list.OfType<T>().Where(item => item.MatchingThis(searchPrompt))
+                    searchResults.AddRange(list.OfType<T>().Where(item => item.IsMatchingThis(searchPrompt))
                         .Select(item => item.ToString()));
                 }
             }
         }
         return searchResults;
     }
-*/
-
-    /* public IEnumerable<string> SearchResult<T>(string searchPrompt) where T : ISearchable 
-     {
-         List<string> searchResults = new List<string>();
-         FieldInfo[] fieldInfo = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
- 
-         foreach (FieldInfo field in fieldInfo)
-         {
-             // Check if the field type is a generic List<>
-             if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(List<>))
-             {
-                 // Get the generic type argument of the List<>
-                 Type listType = field.FieldType.GetGenericArguments()[0];
- 
-                 // Check if the generic type implements the ISearchable interface
-                 if (typeof(ISearchable).IsAssignableFrom(listType))
-                 {
-                     // Retrieve the value of the field (the List) and cast it to IEnumerable<ISearchable>
-                     var list = (IEnumerable<ISearchable>)field.GetValue(this);
- 
-                     // Filter items of type T from the list and apply the search
-                     // Then select the string representation of matching items
-                     searchResults.AddRange(list.OfType<T>().Where(item => item.MatchingThis(searchPrompt))
-                         .Select(item => item.ToString()));
-                 }
-             }
-         }
-         return searchResults;
-     }*/
-
-    public IEnumerable<string> SearchResult<T>(string searchPrompt) where T : ISearchable
+    public IEnumerable<string> SearchResult(string searchPrompt)
     {
         List<string> searchResults = new List<string>();
         FieldInfo[] fieldInfo = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
         foreach (FieldInfo field in fieldInfo)
         {
+            // Check if the field type is a generic List<>
             if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(List<>))
             {
                 // Get the generic type argument of the List<>
                 Type listType = field.FieldType.GetGenericArguments()[0];
 
-                // Check if the generic type (listType) or any of its interfaces implement ISearchable
-                if (!typeof(ISearchable).IsAssignableFrom(listType) &&
-                    listType.GetInterfaces().All(i => i != typeof(ISearchable))) continue;
-                var list = (IEnumerable)field.GetValue(this)!;
+                // Check if the generic type implements the ISearchable interface
+                if (typeof(ISearchable).IsAssignableFrom(listType))
+                {
+                    // Retrieve the value of the field (the List) and cast it to IEnumerable<ISearchable>
+                    var list = (IEnumerable<ISearchable>)field.GetValue(this);
 
-                // Filter items that implement ISearchable and match the search criteria
-                /*searchResults.AddRange(list.Cast<ISearchable>().Where(item => item.IsMatchingThis(searchPrompt))
-                    .Select(item => item.ToString()));
-*/
-                searchResults.AddRange(list.Cast<ISearchable>().Where(item => item.IsMatchingThis<T>(searchPrompt))
-                    .Select(item => item.ToString()));
+                    var ty = listType;
+                    // Filter items of type T from the list and apply the search
+                    // Then select the string representation of matching items
+                    searchResults.AddRange(list.Where(item => item.IsMatchingThis(searchPrompt))
+                        .Select(item => item.ToString()));
+                }
             }
         }
-
         return searchResults;
     }
 
