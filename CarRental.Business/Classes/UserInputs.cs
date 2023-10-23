@@ -11,6 +11,7 @@ public class UserInputs
     public UserInputs(BookingProcessor bp) => _bp = bp;
     public ValidUserInputData ValidUserInputData { get; private set; }
     public bool IsProcessing { get; set; }
+    public bool AfterCarRented { get; set; }
     public void ToggleProcessing() => IsProcessing = !IsProcessing;
 
     #region Feedback
@@ -98,7 +99,7 @@ public class UserInputs
             LicensePlate = UserDataParsing.ParseNewVehicle(LicensePlate, Odometer, VehManufacturer, VehType,
                 CostKm, CostDay, UserInputError);
             FeedbackMessageAdd(UserInputError.ErrorMessages());
-            if (LicensePlate == null) return;
+            if (InputFeedbackMessages.Count > 0) return;
             ValidUserInputData = ValidUserInputData.Vehicle;
             await _bp.HandleUserInput(this);
             ClearData();
@@ -221,6 +222,7 @@ public class UserInputs
     public async Task ev_AddNewCar()
     {
         await TryAddNewVehicle();
+        AfterCarRented = true;
     }
 
     public void ev_SelectedVehicleType(ChangeEventArgs e)
@@ -315,7 +317,7 @@ public class UserInputs
         ValidUserInputData = default;
     }
 
-    private void ClearFeedbackMessage()
+    public void ClearFeedbackMessage()
     {
         InputFeedbackMessages.Clear();
         DataValues = string.Empty;

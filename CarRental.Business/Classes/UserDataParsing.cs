@@ -17,7 +17,6 @@ public static class UserDataParsing
         if (ParseVehicleType(vehicleManufacturer, vehicleType)) error.VehicleTypeError = true;
         if (ParseCostDay(costDay)) error.CostDayError = true;
         if (ParseCostKm(costKm)) error.CostKmError = true;
-        if (error.IfAnyError()) return null;
         return lp;
     }
 
@@ -57,7 +56,7 @@ public static class UserDataParsing
 
     private static string? ParseLicensePlate(string? licensePlate)
     {
-        if (string.IsNullOrEmpty(licensePlate)) throw new ArgumentNullException(licensePlate, "Please enter a License plate");
+        if (string.IsNullOrEmpty(licensePlate)) return null;//throw new ArgumentNullException(licensePlate, "Please enter a License plate");
         var rx = new Regex("^[A-Z]{3} ?[0-9]{2}[A-z0-9]$", RegexOptions.IgnoreCase);
         if (!rx.IsMatch(licensePlate))
             return null;

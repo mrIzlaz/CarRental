@@ -8,16 +8,24 @@
 
 <h1>Car Rental Assignment G</h1>
 
+
+<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.AfterCarRented = true)">AfterAdd = true</button>
+<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.AfterCarRented = false)">AfterAdd = false</button>
+
+
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.UserInputError.Clear())">Error clear</button>
 
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.ToggleProcessing())">Toggle Button Disable</button>
 @if (UserInput.InputFeedbackMessages.Count != 0)
 {
-    <div class="container-md alert @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Errors: 
-    @foreach (var message in UserInput.InputFeedbackMessages)
+    <div class="container-md alert w-50 @(UserInput.IsInputValid ? "bg-success text-bg-success" : "bg-warning text-bg-warning")  align-content-center p-2 m-2">Errors: 
+        <div>@foreach (var message in UserInput.InputFeedbackMessages)
     {
-            <div>* @message <br /></div>
+                <p>* @message <br /></p>
     }
+        </div>
+        <div class="navbartest align-items-center justify-content-center">
+            <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => { UserInput.ClearFeedbackMessage(); UserInput.AfterCarRented = false; })">Clear</button></div>
     </div>
 }
 
@@ -82,14 +90,15 @@ else
         </thead>
         <tr>
             <td class="w-10">
-                <input type="text" class="form-control @(UserInput.UserInputError.LicenseError ? "focusedInput" : false)" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate " disabled="@UserInput.IsProcessing">
+                @*<input type="text" class="form-control @(UserInput.UserInputError.LicenseError ? "focusedInput" : false)" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate" @bind:event="oninput" disabled="@UserInput.IsProcessing">*@
+                <input type="text" class="form-control @(UserInput.UserInputError.LicenseError ? "focusedInput" : false)" placeholder="RegNo." aria-label="Licence Plate" aria-describedby="basic-addon1" @bind="UserInput.LicensePlate"  @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
             </td>
             <td class="w-10">
-                <input type="number" class="form-control @(UserInput.UserInputError.OdometerError ? "focusedInput" : false)" min="0" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1" @bind="UserInput.Odometer" disabled="@UserInput.IsProcessing">
+                <input type="number" class="form-control @(UserInput.UserInputError.OdometerError ? "focusedInput" : false)" min="0" placeholder="Odometer" aria-label="Odo" aria-describedby="basic-addon1" @bind="UserInput.Odometer"  @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
             </td>
             <td>
                 <div class="input-group">
-                    <select class="form-select @(UserInput.UserInputError.ManufacturerError ? "focusedInput" : false)" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged" disabled="@UserInput.IsProcessing">
+                    <select class="form-select @(UserInput.UserInputError.ManufacturerError ? "focusedInput" : false)" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged" @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
                         <option selected>Manufacturer</option>
                         @foreach (var type in Bp.VehicleManufacturer)
                         {
@@ -100,7 +109,7 @@ else
             </td>
             <td>
                 <div class="input-group">
-                    <select class="form-select @(UserInput.UserInputError.VehicleTypeError ? "focusedInput" : false)" id="inputGroupSelect02" @onchange="UserInput.ev_SelectedVehicleType" disabled="@UserInput.IsProcessing">
+                    <select class="form-select @(UserInput.UserInputError.VehicleTypeError ? "focusedInput" : false)" id="inputGroupSelect02" @onchange="UserInput.ev_SelectedVehicleType" @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
                         <option selected>Vehicle Type</option>
                         @foreach (var type in Bp.VehicleTypeNames)
                         {
@@ -110,15 +119,16 @@ else
                 </div>
             </td>
             <td>
-                <input type="number" class="form-control @(UserInput.UserInputError.CostKmError ? "focusedInput" : false)" min="0.2" max="100" step="0.1" placeholder="Cost Km" aria-label="CostKm" aria-describedby="basic-addon1" @bind="UserInput.CostKm" disabled="@UserInput.IsProcessing">
+                <input type="number" class="form-control @(UserInput.UserInputError.CostKmError ? "focusedInput" : false)" min="0.2" max="100" step="0.1" placeholder="Cost Km" aria-label="CostKm" aria-describedby="basic-addon1" @bind="UserInput.CostKm" @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
             </td>
 
             <td>
-                <input type="number" class="form-control @(UserInput.UserInputError.CostDayError ? "focusedInput" : false)" placeholder="Cost Day" min="10" max="1000" step="10" aria-label="CostDay" aria-describedby="basic-addon1" @bind="UserInput.CostDay" disabled="@UserInput.IsProcessing">
+                <input type="number" class="form-control @(UserInput.UserInputError.CostDayError ? "focusedInput" : false)" placeholder="Cost Day" min="10" max="1000" step="10" aria-label="CostDay" aria-describedby="basic-addon1" @bind="UserInput.CostDay" @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">
             </td>
             <td>
                 <div class="align-items-center">
-                    <button class="btn btn-outline-success" @onclick="(() => UserInput.ev_AddNewCar())" disabled="@UserInput.IsProcessing"> Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
+                    @*<button class="btn btn-outline-success" @onclick="(() => UserInput.ev_AddNewCar())" disabled="@UserInput.IsProcessing"> Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>*@
+                    <button class="btn btn-outline-success" @onclick="@( () => UserInput.ev_AddNewCar())" disabled="@UserInput.IsProcessing"> Add @(UserInput.VehType == default ? "Vehicle" : (UserInput.VehType == VehicleType.Motorcycle ? "Motorcycle" : "Car"))</button>
                 </div>
             </td>
             <td>
@@ -281,6 +291,7 @@ else
     </table>
 }
 @code {
+
 
 
 }

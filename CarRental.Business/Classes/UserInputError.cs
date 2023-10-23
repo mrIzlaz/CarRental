@@ -37,11 +37,5 @@ namespace CarRental.Business.Classes;
             if (CostKmError) errorList.Add("CostKM Value incorrect");
             return errorList;
         }
-
-        public bool IfAnyError()
-        {   
-            if (LicenseError || OdometerError || ManufacturerError || VehicleTypeError || CostDayError || CostKmError) return true;
-            return false;
-        }
     }
 
