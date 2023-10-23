@@ -60,7 +60,7 @@ public static class UserDataParsing
         var rx = new Regex("^[A-Z]{3} ?[0-9]{2}[A-z0-9]$", RegexOptions.IgnoreCase);
         if (!rx.IsMatch(licensePlate))
             return null;
-            //throw new ArgumentException("Not a valid Swedish License Plate");
+        //throw new ArgumentException("Not a valid Swedish License Plate");
         licensePlate = licensePlate.ToUpper();
         return char.IsWhiteSpace(licensePlate[3]) ? licensePlate : licensePlate.Insert(3, " ");
     }
@@ -74,7 +74,7 @@ public static class UserDataParsing
 
     private static bool ParseManufacturer(VehicleManufacturer vehicleManufacturer)
     {
-        if (vehicleManufacturer == default) return true;
+        if (((int)vehicleManufacturer) == -1) return true;
         return false;
 
         //throw new ArgumentException("Please select a Manufacturer");
@@ -93,7 +93,7 @@ public static class UserDataParsing
         {
             case null:
                 return true;
-                //throw new ArgumentException("Cost Day Value incorrect");
+            //throw new ArgumentException("Cost Day Value incorrect");
             case > 0:
                 return false;
             default:
