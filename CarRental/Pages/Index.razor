@@ -9,12 +9,6 @@
 <h1>Car Rental Assignment G</h1>
 
 
-<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.AfterCarRented = true)">AfterAdd = true</button>
-<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.AfterCarRented = false)">AfterAdd = false</button>
-
-
-<button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.UserInputError.Clear())">Error clear</button>
-
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.ToggleProcessing())">Toggle Button Disable</button>
 @if (UserInput.InputFeedbackMessages.Count != 0)
 {
