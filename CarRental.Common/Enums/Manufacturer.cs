@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,14 +28,14 @@ public static class Manufacturer
 
 public enum VehicleManufacturer
 {
-    Toyota,
-    Bmw,
-    Honda,
-    Suzuki,
-    Volvo,
-    Kia,
-    Jeep,
-    Ford,
-    Škoda,
-    Rivian
+    Toyota = 1,
+    Bmw = 2,
+    Honda = 3,
+    Suzuki = 4,
+    Volvo = 5,
+    Kia = 6,
+    Jeep = 7,
+    Ford = 8,
+    Škoda = 9,
+    Rivian = 10
 }

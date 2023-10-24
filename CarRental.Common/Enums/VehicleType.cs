@@ -2,8 +2,8 @@
 
 public enum VehicleType
 {
-    Sedan,
-    Combi,
-    Van,
-    Motorcycle
+    Sedan = 1,
+    Combi = 2,
+    Van = 3,
+    Motorcycle = 4
 }

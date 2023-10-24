@@ -7,7 +7,7 @@ namespace CarRental.Business.Classes;
 
 public static class UserDataParsing
 {
-    public static string ParseNewVehicle(string? licensePlate, int? odometer, VehicleManufacturer vehicleManufacturer,
+    public static string ParseNewVehicle(string? licensePlate, int? odometer, VehicleManufacturer? vehicleManufacturer,
         VehicleType? vehicleType, double? costKm, int? costDay, UserInputError error)
     {
         var (lp, boolValue) = ParseLicensePlate(licensePlate);
@@ -71,9 +71,9 @@ public static class UserDataParsing
         //throw new ArgumentException("Odometer Value incorrect");
     }
 
-    private static bool ParseManufacturer(VehicleManufacturer vehicleManufacturer)
+    private static bool ParseManufacturer(VehicleManufacturer? vehicleManufacturer)
     {
-        if (((int)vehicleManufacturer) == -1) return true;
+        if (vehicleManufacturer == null || ((int)vehicleManufacturer) == 0) return true;
         return false;
 
         //throw new ArgumentException("Please select a Manufacturer");
@@ -92,21 +92,20 @@ public static class UserDataParsing
         {
             case null:
                 return true;
-            //throw new ArgumentException("Cost Day Value incorrect");
             case > 0:
                 return false;
             default:
                 return true;
-                //throw new ArgumentException("Cost Day Value incorrect");
         }
     }
 
-    private static bool ParseVehicleType(VehicleManufacturer vehicleManufacturer, VehicleType? vehicleType)
+    private static bool ParseVehicleType(VehicleManufacturer? vehicleManufacturer, VehicleType? vehicleType)
     {
-        var debugMess = vehicleManufacturer.ToString();
-        if (vehicleType == null) return true; //throw new ArgumentException("Please select a Vehicle Type");
-        if (vehicleType != VehicleType.Motorcycle || vehicleManufacturer.IsMotoMaker()) return false;
-        throw new ArgumentException($"{debugMess} does not make motorcycles");
+        if (vehicleManufacturer == null || vehicleManufacturer == 0) return true;
+        VehicleManufacturer vm = (VehicleManufacturer)vehicleManufacturer;
+        if (vehicleType == null || (int)vehicleType == 0) return true; 
+        if (vehicleType != VehicleType.Motorcycle || vm.IsMotoMaker()) return false;
+        return true;
     }
 
     public static int ParseDistance(int? distance) => (int)(distance > 0 ? distance : 0);

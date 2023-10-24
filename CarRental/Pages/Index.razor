@@ -8,7 +8,6 @@
 
 <h1>Car Rental Assignment G</h1>
 
-
 <button class="btn btn-primary rounded-2 p-2 m-2" @onclick="(() => UserInput.ToggleProcessing())">Toggle Button Disable</button>
 @if (UserInput.InputFeedbackMessages.Count != 0)
 {
@@ -104,8 +103,7 @@ else
                         }
                     }"
                             disabled="@UserInput.IsProcessing">
-                        @*<select class="form-select @(UserInput.UserInputError.ManufacturerError ? "focusedInput" : false)" id="inputGroupSelect01" @onchange="UserInput.ev_SelectedManufacturerChanged" @onblur="UserInput.AfterCarRented ? UserInput.ev_AddNewCar : null" disabled="@UserInput.IsProcessing">*@
-                        <option value=-1 selected>Manufacturer</option>
+                        <option value="" disabled selected hidden>Manufacturer</option>
                         @foreach (var type in Bp.VehicleManufacturer)
                         {
                             <option value=@type> @type</option>
@@ -123,7 +121,7 @@ else
                             UserInput.ev_AddNewCar();
                         }
                     }" disabled="@UserInput.IsProcessing">
-                        <option selected>Vehicle Type</option>
+                        <option disabled selected hidden>Vehicle Type</option>
                         @foreach (var type in Bp.VehicleTypeNames)
                         {
                             <option value=@type> @type</option>

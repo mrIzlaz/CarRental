@@ -38,10 +38,10 @@ public class UserInputs
     #region New Vehicle
 
     public string LicensePlate { get; set; } = string.Empty;
-    private VehicleManufacturer VehManufacturer { get; set; }
+    private VehicleManufacturer? VehManufacturer { get; set; } = new();
     public int? Odometer { get; set; }
     public double? CostKm { get; set; }
-    public VehicleType? VehType { get; private set; }
+    public VehicleType? VehType { get; private set; } = new();
     public int? CostDay { get; set; }
     public VehicleStatus VisibleVehicle { get; set; }
     public UserInputError UserInputError { get; set; } = new();
@@ -243,7 +243,7 @@ public class UserInputs
 
     public void ev_SelectedVehicleType(ChangeEventArgs e)
     {
-        if (e.Value is null) return;
+        //if (e.Value is null) return;
         Enum.TryParse(e.Value.ToString(), out VehicleType type);
         VehType = type;
     }
@@ -281,8 +281,10 @@ public class UserInputs
 
     private void OnManufacturerUpdate()
     {
-        CostKm = VehManufacturer.GetVehicleCost(true);
-        CostDay = (int)VehManufacturer.GetVehicleCost();
+        if (VehManufacturer == null) return;
+        VehicleManufacturer vm = (VehicleManufacturer)VehManufacturer;
+        CostKm = vm.GetVehicleCost(true);
+        CostDay = (int)vm.GetVehicleCost();
     }
 
     #endregion
